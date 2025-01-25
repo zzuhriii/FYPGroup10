@@ -34,36 +34,65 @@ VALUES
 ('Harper King', 24, 'Female', 3.95, 'School of ICT');
 
 
--- Create the enrollments table
+-- Creating enrollments table
 CREATE TABLE enrollments (
-    intake VARCHAR(4), 
-    student_id VARCHAR(8), 
-    course_id VARCHAR(4), 
-    grade VARCHAR(11), 
-    PRIMARY KEY (intake, student_id, course_id)
+    intake VARCHAR(2),
+    student_id VARCHAR(9),
+    course_id VARCHAR(4),
+    grade VARCHAR(12)
 );
 
-
--- Data for enrollments table
+-- Student enrollment table
 INSERT INTO enrollments (intake, student_id, course_id, grade)
 VALUES
-('11', '11FTT1050', 'DDAT', 'Distinction'),
-('11', '11FTT1152', 'DCNG', 'Merit'),
-('11', '11FTT1345', 'DNUS', 'Pass'),
-('11', '11FTT1423', 'DPAH', 'Fail'),
-('11', '11FTT1999', 'DEEE', 'Distinction'),
-('12', '12FTT1020', 'DDAT', 'Merit'),
-('12', '12FTT1125', 'DCNG', 'Pass'),
-('12', '12FTT1234', 'DNUS', 'Fail'),
-('12', '12FTT1456', 'DPAH', 'Distinction'),
-('12', '12FTT1990', 'DATE', 'Merit'),
-('13', '13FTT1015', 'DDAT', 'Pass'),
-('13', '13FTT1254', 'DCNG', 'Distinction'),
-('13', '13FTT1378', 'DNUS', 'Merit'),
-('13', '13FTT1420', 'DPAH', 'Fail'),
-('13', '13FTT1988', 'DEEE', 'Distinction'),
-('14', '14FTT1045', 'DDAT', 'Fail'),
-('14', '14FTT1178', 'DCNG', 'Merit'),
-('14', '14FTT1289', 'DNUS', 'Pass'),
-('14', '14FTT1350', 'DPAH', 'Distinction'),
-('14', '14FTT1900', 'DATE', 'Merit');
+    ('11', '11FTT1001', 'DDAT', 'Distinction'),
+    ('11', '11FTT1502', 'DCNG', 'Merit'),
+    ('12', '12FTT1203', 'DNUS', 'Pass'),
+    ('12', '12FTT1404', 'DPAH', 'Fail'),
+    ('13', '13FTT1705', 'DATE', 'Distinction'),
+    ('13', '13FTT1806', 'DEEE', 'Merit'),
+    ('14', '14FTT1907', 'DDAT', 'Pass'),
+    ('14', '14FTT1108', 'DCNG', 'Fail'),
+    ('11', '11FTT1023', 'DNUS', 'Pass'),
+    ('12', '12FTT1309', 'DPAH', 'Merit'),
+    ('13', '13FTT1500', 'DATE', 'Distinction'),
+    ('14', '14FTT1601', 'DEEE', 'Fail'),
+    ('11', '11FTT1202', 'DDAT', 'Merit'),
+    ('12', '12FTT1103', 'DCNG', 'Distinction'),
+    ('13', '13FTT1404', 'DNUS', 'Fail'),
+    ('14', '14FTT1705', 'DPAH', 'Pass'),
+    ('11', '11FTT1506', 'DATE', 'Distinction'),
+    ('12', '12FTT1807', 'DEEE', 'Merit'),
+    ('13', '13FTT1908', 'DDAT', 'Fail'),
+    ('14', '14FTT1009', 'DCNG', 'Pass');
+
+-- Creating Student contacts table
+CREATE TABLE student_contacts (
+    student_id VARCHAR(9),
+    phone_number VARCHAR(15), 
+    email VARCHAR(50) 
+);
+
+-- Student contacts table
+INSERT INTO student_contacts (student_id, phone_number, email)
+VALUES
+    ('11FTT1001', '8231001', 'johnsmith@gmail.com'),
+    ('11FTT1502', '8231502', 'aliakbar@gmail.com'),
+    ('12FTT1203', '8231203', 'brotherhoodnod@gmail.com'),
+    ('12FTT1404', '8231404', 'scarlettjohansson@gmail.com'),
+    ('13FTT1705', '8231705', 'omaradnan@gmail.com'),
+    ('13FTT1806', '8231806', 'charlesolivera@gmail.com'),
+    ('14FTT1907', '8231907', 'dustinpoirier@gmail.com'),
+    ('14FTT1108', '8231108', 'justingaethje@gmail.com'),
+    ('11FTT1023', '8231023', 'conormcgregor@gmail.com'),
+    ('12FTT1309', '8231309', 'islammakhachev@gmail.com'),
+    ('13FTT1500', '8231500', 'khabibnurmagomedov@gmail.com'),
+    ('14FTT1601', '8231601', 'muhammadali@gmail.com'),
+    ('11FTT1202', '8231202', 'sitisyafiqah@gmail.com'),
+    ('12FTT1103', '8231103', 'miaharris@gmail.com'),
+    ('13FTT1404', '8231404', 'ethanmartin@gmail.com'),
+    ('14FTT1705', '8231705', 'amelialee@gmail.com'),
+    ('11FTT1506', '8231506', 'noahwalker@gmail.com'),
+    ('12FTT1807', '8231807', 'charlottehall@gmail.com'),
+    ('13FTT1908', '8231908', 'miketyson@gmail.com'),
+    ('14FTT1009', '8231009', 'harperking@gmail.com');

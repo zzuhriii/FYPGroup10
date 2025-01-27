@@ -1,0 +1,42 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background-color: #004d99;
+    color: white;
+    padding: 21.5px;
+}
+header h1 {
+    margin: 0;
+}
+.intro {
+    margin-top: 50px;
+    font-size: 18px;
+    color: #555;
+}
+.intro h2 {
+    color: #333;
+}
+.register-btn, .company-btn {
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 18px;
+    color: white;
+    background-color: #004d99;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.register-btn:hover, .company-btn:hover {
+    background-color: #004d99;
+}
+.top-left-image {
+    position: absolute;
+    top: 0px;
+    left: 20px;
+    width: 100px;
+}

@@ -1,0 +1,5 @@
+For this the search function to work:
+- Create a new database called 'company_database' in the xampp sql admin
+- Select the newly created database and click the import tab while you're in the xampp admin
+- While inside the import tab, there'll be an option to choose the file to import, click it and use the sql file called 'company_database.sql'.
+- After scroll down while in the import tab and you'll see an option to import the file

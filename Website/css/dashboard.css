@@ -1,3 +1,4 @@
+/* Reset styles */
 * {
     margin: 0;
     padding: 0;
@@ -5,8 +6,8 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f7f7f7;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f6f9;
     color: #333;
     padding: 0;
     margin: 0;
@@ -14,10 +15,11 @@ body {
 
 /* Header styles */
 header {
-    background-color: #0044cc;
+    background-color: #0056b3;
     color: white;
-    padding: 20px 0;
+    padding: 10px 0;
     text-align: center;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .header-content {
@@ -29,14 +31,16 @@ header {
     padding: 0 20px;
 }
 
-.logo {
-    height: 50px;
-    width: auto;
+.top-left-image {
+    height: 40px;
+    position: absolute;
+    left: 20px;
+    top: 5px;
 }
 
 h1 {
     flex-grow: 1;
-    font-size: 1.8em;
+    font-size: 1.5em;
     text-align: center;
 }
 
@@ -45,11 +49,17 @@ nav a {
     text-decoration: none;
     font-size: 1.1em;
     margin-left: 20px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: #ffd700;
 }
 
 .logout-btn {
     padding: 10px 20px;
-    background-color: #ff5c5c;
+    background-color: #dc3545;
     border-radius: 5px;
     color: white;
     text-decoration: none;
@@ -57,27 +67,33 @@ nav a {
 }
 
 .logout-btn:hover {
-    background-color: #e44d4d;
+    background-color: #c82333;
 }
 
 /* Main content styling */
 main {
-    padding: 40px 20px;
+    padding: 50px 20px;
     max-width: 1200px;
     margin: 0 auto;
 }
 
 .dashboard-section {
     background-color: white;
-    padding: 20px;
+    padding: 25px;
     margin-bottom: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.dashboard-section:hover {
+    transform: translateY(-5px);
 }
 
 .dashboard-section h2 {
     font-size: 1.8em;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    color: #0056b3;
 }
 
 .dashboard-section p {
@@ -87,18 +103,20 @@ main {
 
 .button {
     display: inline-block;
-    padding: 10px 20px;
-    background-color: #0044cc;
+    padding: 12px 24px;
+    background-color: #0056b3;
     color: white;
     text-decoration: none;
-    border-radius: 5px;
+    border-radius: 6px;
     font-size: 1.1em;
-    transition: background-color 0.3s;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.2s;
     margin-right: 15px;
 }
 
 .button:hover {
-    background-color: #0033a0;
+    background-color: #003d82;
+    transform: scale(1.05);
 }
 
 @media (max-width: 768px) {
@@ -108,16 +126,27 @@ main {
     }
 
     h1 {
-        font-size: 1.5em;
+        font-size: 1.2em;
+        margin-bottom: 10px;
+    }
+
+    .top-left-image {
+        position: relative;
+        left: auto;
+        top: auto;
+        margin-bottom: 15px;
     }
 
     .button {
         display: block;
         width: 100%;
         margin-bottom: 10px;
+        text-align: center;
     }
 
     .logout-btn {
         margin-top: 20px;
+        width: 100%;
+        text-align: center;
     }
 }

@@ -39,14 +39,20 @@ $user_type = $user['user_type'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Politeknik Dashboard</title>
     <link rel="stylesheet" href="/Website/css/dashboard.css">
-    <img src="/Website/media/pblogo.png" alt="Your Image" class="top-left-image">
+    <link rel="stylesheet" href="/Website/css/dashboard-animations.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
         <div class="header-content">
-            <h1>Welcome to Your Dashboard, <?php echo htmlspecialchars($user['name']); ?></h1>
+            <div class="logo-container">
+                <img src="/Website/media/pblogo.png" alt="Politeknik Logo" class="top-left-image">
+                <h1>Welcome to Politeknik Brunei, <?php echo htmlspecialchars($user['name']); ?></h1>
+            </div>
             <nav>
                 <a href="/Website/authentication/logout.php" class="logout-btn">Logout</a>
             </nav>
@@ -54,32 +60,64 @@ $user_type = $user['user_type'];
     </header>
 
     <main>
+        <div class="welcome-text">
+            <h2>Find Your Perfect Career Match</h2>
+            <p>Join our platform where opportunities meet talent. Whether you're a recent graduate looking to kickstart your career or a company seeking fresh talent, we've got you covered.</p>
+        </div>
+
         <?php if ($user_type == 'graduate'): ?>
-            <section class="dashboard-section">
+            <section class="dashboard-section graduate-dashboard">
                 <h2>Your Graduate Dashboard</h2>
-                <p>Here you can view available jobs and apply to them!</p>
-                <a href="/Website/jobs/get_jobs.php" class="button">View Available Jobs</a>
+                <p>Discover job opportunities tailored to your skills and qualifications. Take the first step towards your dream career today!</p>
+                <div class="button-container">
+                    <a href="/Website/jobs/get_jobs.php" class="button staggered-animation">View Available Jobs</a>
+                    <a href="/Website/user_profile/profile.php" class="button staggered-animation">View Your Profile</a>
+                </div>
             </section>
         <?php elseif ($user_type == 'company'): ?>
-            <section class="dashboard-section">
+            <section class="dashboard-section company-dashboard">
                 <h2>Your Company Dashboard</h2>
-                <p>Here you can manage your job postings and view applications from graduates!</p>
-                <a href="/Website/jobs/add_job.php" class="button">Post New Job</a>
-                <a href="/Website/jobs/check_applications.php" class="button">View Applications</a>
-                <a href="/Website/jobs/manage_jobs.php" class="button">Manage Job Postings</a>
+                <p>Connect with top talent from Politeknik. Post jobs, review applications, and find the perfect candidates for your team.</p>
+                <div class="button-container">
+                    <a href="/Website/jobs/add_job.php" class="button staggered-animation">Post New Job</a>
+                    <a href="/Website/FindingApplicants.php" class="button staggered-animation">View Applications</a>
+                    <a href="/Website/jobs/manage_jobs.php" class="button staggered-animation">Manage Job Postings</a>
+                </div>
             </section>
         <?php elseif ($user_type == 'admin'): ?>
-            <section class="dashboard-section">
+            <section class="dashboard-section admin-dashboard">
                 <h2>Your Admin Dashboard</h2>
-                <p>As an admin, you can manage all users and job postings.</p>
-                <a href="manage_users.php" class="button">Manage Users</a>
-                <a href="manage_jobs.php" class="button">Manage Job Postings</a>
-                <a href="view_applications.php" class="button">View Applications</a>
+                <p>Manage the entire platform efficiently. Oversee users, job postings, and applications to ensure everything runs smoothly.</p>
+                <div class="button-container">
+                    <a href="manage_users.php" class="button staggered-animation">Manage Users</a>
+                    <a href="manage_jobs.php" class="button staggered-animation">Manage Job Postings</a>
+                    <a href="view_applications.php" class="button staggered-animation">View Applications</a>
+                </div>
             </section>
         <?php else: ?>
             <p>Invalid user type. Please contact support.</p>
         <?php endif; ?>
     </main>
 
+    <script>
+        // Add animations when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.dashboard-section');
+            
+            // Add intersection observer to trigger animations when elements come into view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = "1";
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
 </body>
 </html>

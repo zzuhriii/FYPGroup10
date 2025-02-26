@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <header class="animate-fadeIn">
         <h1>Welcome to the Login Page!</h1>
-        <img src="/Website/pblogo.png" alt="Your Image" class="top-left-image animate-fadeIn">
+        <img src="/Website/media/pblogo.png" alt="Your Image" class="top-left-image animate-fadeIn">
     </header>
 
     <main class="animate-slideUp">

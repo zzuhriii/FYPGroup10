@@ -9,7 +9,7 @@
 </head>
 <body>
     <header class="animate-slideDown">
-        <img src="pblogo.png" alt="Politeknik Logo" class="top-left-image animate-slideInLeft">
+        <img src="/Website/media/pblogo.png" alt="Politeknik Logo" class="top-left-image animate-slideInLeft">
         <h1 class="animate-fadeIn">Welcome to Politeknik Marketing Day</h1>
     </header>
 

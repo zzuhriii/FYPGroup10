@@ -88,10 +88,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Register as Company</title>
     <link rel="stylesheet" href="/Website/css/register.css">
     <link rel="stylesheet" href="/Website/css/register-animations.css">
-    <img src="/Website/media/pblogo.png" alt="Your Image" class="top-left-image">
 </head>
 <body>
     <header>
+    <img src="/Website/media/pblogo.png" alt="Your Image" class="top-left-image">
         <h1>Register as Company</h1>
     </header>
 

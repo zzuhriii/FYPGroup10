@@ -1,3 +1,39 @@
+<?php
+// Start session
+session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: /Website/authentication/login.php");
+    exit();
+}
+
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "marketing_day";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Get user data
+$user_id = $_SESSION['user_id'];
+$sql = "SELECT name, email, phone FROM users WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+$stmt->close();
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +41,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Page - Politeknik Brunei</title>
 
-    <!-- External CSS for Politeknik Brunei theme -->
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -16,7 +51,7 @@
         }
 
         header {
-            background-color: #005f73; /* Politeknik Brunei Blue */
+            background-color: #005f73;
             color: #fff;
             padding: 20px 0;
             text-align: center;
@@ -59,18 +94,6 @@
             border-radius: 8px;
             box-sizing: border-box;
             margin-top: 5px;
-        }
-
-        .input-field input[type="file"] {
-            padding: 10px;
-            background-color: #005f73;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        .input-field input[type="file"]:hover {
-            background-color: #003e4d;
         }
 
         .input-field input[type="submit"] {
@@ -127,40 +150,33 @@
 
     <div class="container">
         <form action="update_profile.php" method="post" enctype="multipart/form-data">
-            <!-- User ID (Hidden) -->
-            <input type="hidden" name="user_id" value="1">
+            <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($user_id); ?>">
 
-            <!-- Name Input -->
             <div class="input-field">
                 <label for="name">Name:</label>
-                <input type="text" id="name" name="name" value="" required>
+                <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required>
             </div>
 
-            <!-- Email Input -->
             <div class="input-field">
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value="" required>
+                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
             </div>
 
-            <!-- Phone Input -->
             <div class="input-field">
                 <label for="phone">Phone:</label>
-                <input type="tel" id="phone" name="phone" value="" required>
+                <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" required>
             </div>
 
-            <!-- Profile Picture Upload -->
             <div class="input-field">
                 <label for="profile_pic">Upload New Profile Picture:</label>
                 <input type="file" name="profile_pic" id="profile_pic">
             </div>
 
-            <!-- Submit Button -->
             <div class="input-field">
                 <input type="submit" value="Update Profile">
             </div>
         </form>
 
-        <!-- Back Button -->
         <button class="back-button" onclick="window.location.href='/Website/main/dashboard.php'">Back to Dashboard</button>
     </div>
 

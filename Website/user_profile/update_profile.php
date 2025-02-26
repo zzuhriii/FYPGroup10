@@ -45,7 +45,6 @@ if (isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] == 0) {
 
     // Move the uploaded file to the target directory
     if (move_uploaded_file($_FILES['profile_pic']['tmp_name'], $target_file)) {
-        echo "The file " . htmlspecialchars($new_file_name) . " has been uploaded successfully.";
         $profile_pic = $new_file_name; // Store the new file name in the database
     } else {
         echo "Sorry, there was an error uploading your file.";
@@ -66,11 +65,12 @@ if ($profile_pic) {
 
 $sql .= " WHERE id = $user_id";
 
-// Execute the query and check if it's successful
+// Execute the query
 if ($conn->query($sql) === TRUE) {
-    echo "Profile updated successfully!";
-    header("Location: profile.php");  // Redirect back to the profile page
-    exit();
+    echo "<script>
+        alert('Profile updated successfully!');
+        window.location.href = 'profile.php';
+    </script>";
 } else {
     echo "Error: " . $conn->error;
 }

@@ -20,7 +20,7 @@ $messageType = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
+    $ic_number = trim($_POST['ic_number']);
     $password = $_POST['password'];
     $confirmPassword = $_POST['confirm_password'];
     $user_type = 'graduate';
@@ -32,10 +32,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors[] = "Name must be at least 2 characters long";
     }
     
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Please enter a valid email address";
-    }
-    
     if (strlen($password) < 8) {
         $errors[] = "Password must be at least 8 characters long";
     }
@@ -45,27 +41,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (empty($errors)) {
-        // Check if email exists
-        $sql = "SELECT * FROM users WHERE email = ?";
+        // Check if IC number exists
+        $sql = "SELECT * FROM users WHERE ic_number = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email);
+        $stmt->bind_param("s", $ic_number);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            $message = "This email is already registered. Please use a different email or login.";
+            $message = "This IC number is already registered. Please use a different IC or login.";
             $messageType = 'error';
         } else {
             // Hash password and insert user
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $sql = "INSERT INTO users (name, email, password, user_type) VALUES (?, ?, ?, ?)";
+            $sql = "INSERT INTO users (name, ic_number, password, user_type) VALUES (?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssss", $name, $email, $hashedPassword, $user_type);
+            $stmt->bind_param("ssss", $name, $ic_number, $hashedPassword, $user_type);
 
             if ($stmt->execute()) {
                 $message = "Registration successful! Please login.";
                 $messageType = 'success';
-                // Redirect after 2 seconds
                 header("refresh:2;url=login.php");
             } else {
                 $message = "Registration failed. Please try again.";
@@ -88,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Register as Graduate</title>
     <link rel="stylesheet" href="/Website/css/register.css">
     <link rel="stylesheet" href="/Website/css/register-animations.css">
-    </head>
+</head>
 <body>
     <header>
         <img src="/Website/media/pblogo.png" alt="Politeknik Logo" class="top-left-image">
@@ -112,10 +107,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required
-                           value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"
-                           placeholder="Enter your email">
+                    <label for="ic_number">IC Number</label>
+                    <input type="text" id="ic_number" name="ic_number" required
+                           value="<?php echo isset($_POST['ic_number']) ? htmlspecialchars($_POST['ic_number']) : ''; ?>"
+                           placeholder="Enter your IC number">
                 </div>
 
                 <div class="form-group">

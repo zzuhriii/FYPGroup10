@@ -141,7 +141,7 @@ $profile_pic = !empty($user['profile_pic']) ? "/Website/user_profile/uploads/" .
                 <p>Discover job opportunities tailored to your skills and qualifications. Take the first step towards your dream career today!</p>
                 <div class="button-container">
                     <a href="/Website/search_jobs/graduates_homepage.php" class="button staggered-animation">View Available Jobs</a>
-                    <a href="/Website/user_profile/profile.php" class="button staggered-animation">View Your Profile</a>
+                    
                 </div>
             </section>
         <?php elseif ($user_type == 'company'): ?>

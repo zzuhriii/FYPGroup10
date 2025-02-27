@@ -23,7 +23,7 @@ if ($conn->connect_error) {
 
 // Get user data
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT name, email, phone, profile_pic FROM users WHERE id = ?";
+$sql = "SELECT name, email, phone, ic_number, profile_pic FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -75,6 +75,11 @@ $profile_pic = !empty($user['profile_pic']) ? "uploads/" . $user['profile_pic'] 
             <div class="input-field">
                 <label for="phone">Phone:</label>
                 <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" required>
+            </div>
+
+            <div class="input-field">
+                <label for="ic_number">IC Number:</label>
+                <input type="text" id="ic_number" name="ic_number" value="<?php echo htmlspecialchars($user['ic_number']); ?>" required>
             </div>
 
             <div class="input-field">

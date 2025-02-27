@@ -110,14 +110,15 @@ $profile_pic = !empty($user['profile_pic']) ? "/Website/user_profile/uploads/" .
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <div class="logo-container">
-                <img src="/Website/media/pblogo.png" alt="Politeknik Logo" class="top-left-image">
-                <h1>Welcome to Politeknik Brunei, <?php echo htmlspecialchars($user['name']); ?></h1>
-            </div>
-            <nav>
-                <!-- Profile Picture with Dropdown -->
+<header>
+    <div class="header-content">
+        <div class="logo-container">
+            <img src="/Website/media/pblogo.png" alt="Politeknik Logo" class="top-left-image">
+            <h1>Welcome to Politeknik Brunei, <?php echo htmlspecialchars($user['name']); ?></h1>
+        </div>
+        <nav>
+            <!-- Profile Picture with Dropdown, shown only for graduates -->
+            <?php if ($user_type == 'graduate'): ?>
                 <div class="profile-container">
                     <img src="<?php echo htmlspecialchars($profile_pic); ?>" alt="Profile Picture" class="profile-pic" id="profilePic">
                     <div class="dropdown-menu" id="dropdownMenu">
@@ -125,14 +126,23 @@ $profile_pic = !empty($user['profile_pic']) ? "/Website/user_profile/uploads/" .
                         <a href="/Website/authentication/logout.php">Logout</a>
                     </div>
                 </div>
-            </nav>
-        </div>
-    </header>
+            <?php endif; ?>
+            <!-- Logout button shown only for company users -->
+            <?php if ($user_type == 'company'): ?>
+                <div class="logout-container">
+                    <a href="/Website/authentication/logout.php" class="logout-btn">Logout</a>
+                </div>
+            <?php endif; ?>
+        </nav>
+    </div>
+</header>
 
     <main>
         <div class="welcome-text">
             <h2>Find Your Perfect Career Match</h2>
             <p>Join our platform where opportunities meet talent. Whether you're a recent graduate looking to kickstart your career or a company seeking fresh talent, we've got you covered.</p>
+
+            
         </div>
 
         <?php if ($user_type == 'graduate'): ?>

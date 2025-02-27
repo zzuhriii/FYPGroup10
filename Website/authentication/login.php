@@ -16,34 +16,48 @@ if ($conn->connect_error) {
 session_start(); // Start the session to store login information
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $ic_number = trim($_POST['ic_number']);
+    $email_or_ic = $_POST['email_or_ic'];
     $password = $_POST['password'];
 
-    // Query to find the user by IC number
-    $sql = "SELECT * FROM users WHERE ic_number = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $ic_number);
+    // Query to find the user by either IC number or email
+    if (filter_var($email_or_ic, FILTER_VALIDATE_EMAIL)) {
+        // If the input is an email, search by email
+        $sql = "SELECT * FROM users WHERE email = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email_or_ic);
+    } else {
+        // Otherwise, treat it as an IC number
+        $sql = "SELECT * FROM users WHERE ic_number = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email_or_ic);
+    }
+
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
         
-        // Verify the password
+  
         if (password_verify($password, $user['password'])) {
-            // Set session variables for the logged-in user
+          
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['name'];
-            $_SESSION['user_ic'] = $user['ic_number'];
+            $_SESSION['user_email'] = $user['email'];
+            $_SESSION['user_type'] = $user['user_type']; 
 
-            // Redirect based on user type (graduate or company)
-            header("Location:/Website/main/dashboard.php");
+           
+            if ($user['user_type'] == 'graduate') {
+                header("Location: /Website/main/dashboard.php"); 
+            } else {
+                header("Location: /Website/main/dashboard.php"); 
+            }
             exit();
         } else {
             echo "Invalid password.";
         }
     } else {
-        echo "No user found with that IC number.";
+        echo "No user found with that email or IC number.";
     }
 }
 ?>
@@ -65,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <main class="animate-slideUp">
         <form action="login.php" method="POST" class="animate-fadeInDelay">
-            <input type="text" name="ic_number" placeholder="IC Number" required><br>
+            <input type="text" name="email_or_ic" placeholder="Email or IC Number" required><br>
             <input type="password" name="password" placeholder="Password" required><br>
             <button type="submit" class="animate-fadeInDelay">Login</button>
         </form>

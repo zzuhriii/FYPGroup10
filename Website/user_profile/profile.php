@@ -34,7 +34,7 @@ $stmt->close();
 $conn->close();
 
 // Set profile picture or placeholder
-$profile_pic = !empty($user['profile_pic']) ? "uploads/" . $user['profile_pic'] : "uploads/placeholder.png";
+$profile_pic = !empty($user['profile_pic']) ? "uploads/" . $user['profile_pic'] : "/Website/media/placeholder.png";
 ?>
 
 <!DOCTYPE html>
@@ -48,7 +48,13 @@ $profile_pic = !empty($user['profile_pic']) ? "uploads/" . $user['profile_pic'] 
 <body>
 
     <header>
+    <div class="header-content">
+            <div class="logo-container">
+                <img src="/Website/media/pblogo.png" alt="Politeknik Logo" class="top-left-image">
+            </div>
+
         <h1>Politeknik Brunei - Update Profile</h1>
+        
         <img src="<?php echo htmlspecialchars($profile_pic); ?>" alt="Profile Picture" class="profile-pic">
     </header>
 

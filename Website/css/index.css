@@ -105,6 +105,26 @@ main {
     box-shadow: 0 5px 15px rgba(0, 77, 153, 0.3);
 }
 
+.login-btn {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+    opacity: 0;
+    animation: fadeIn 0.8s ease-out forwards;
+    background: linear-gradient(135deg, #003366, #004d99); 
+    animation-delay: 1.4s; 
+}
+
+.login-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 77, 153, 0.3);
+}
+
 @keyframes slideDown {
     from {
         transform: translateY(-100%);

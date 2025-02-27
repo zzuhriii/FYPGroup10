@@ -25,6 +25,9 @@
                 <button class="company-btn animate-fadeIn-delay" onclick="window.location.href='authentication/register_company.php'">
                     Register as Company
                 </button>
+                <button class="login-btn animate-fadeIn-delay" onclick="window.location.href='authentication/login.php'">
+                    Login
+                </button>
             </div>
         </section>
     </main>

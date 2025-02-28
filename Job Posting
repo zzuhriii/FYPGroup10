@@ -1,0 +1,272 @@
+<?php
+// Database configuration
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "company_database";
+
+// Initialize variables
+$errors = [];
+$successMessage = '';
+
+// Handle form submissions
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // Handle job deletion
+    if (isset($_POST['delete_job'])) {
+        $job_id = (int)$_POST['job_id'];
+        $stmt = $conn->prepare("DELETE FROM jobs WHERE job_ID = ?");
+        $stmt->bind_param("i", $job_id);
+        if ($stmt->execute()) {
+            $successMessage = "Job deleted successfully!";
+        } else {
+            $errors[] = "Error deleting job: " . $stmt->error;
+        }
+        $stmt->close();
+    }
+    // Handle new job posting
+    elseif (isset($_POST['submit_job'])) {
+        // Validate and sanitize inputs
+        $requiredFields = [
+            'job_Title' => 'Job Title',
+            'job_Description' => 'Job Description',
+            'job_Category' => 'Job Category',
+            'job_Vacancy' => 'Job Vacancy',
+            'job_Offered' => 'Job Offered Date',
+            'expiration_date' => 'Expiration Date'
+        ];
+
+        foreach ($requiredFields as $field => $name) {
+            if (empty($_POST[$field])) {
+                $errors[] = "$name is required";
+            }
+        }
+
+        if (empty($errors)) {
+            $job_Title = $conn->real_escape_string($_POST['job_Title']);
+            $job_Description = $conn->real_escape_string($_POST['job_Description']);
+            $job_Category = $conn->real_escape_string($_POST['job_Category']);
+            $job_Vacancy = (int)$_POST['job_Vacancy'];
+            $job_Offered = $conn->real_escape_string($_POST['job_Offered']);
+            $expiration_date = $conn->real_escape_string($_POST['expiration_date']);
+
+            $stmt = $conn->prepare("INSERT INTO jobs (job_Title, job_Description, job_Category, job_Vacancy, job_Offered, expiration_date) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssiss", $job_Title, $job_Description, $job_Category, $job_Vacancy, $job_Offered, $expiration_date);
+
+            if ($stmt->execute()) {
+                $successMessage = "Job posted successfully!";
+            } else {
+                $errors[] = "Error: " . $stmt->error;
+            }
+
+            $stmt->close();
+        }
+    }
+
+    $conn->close();
+}
+
+// Fetch and clean up expired jobs
+try {
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    // Delete expired jobs
+    $conn->query("DELETE FROM jobs WHERE expiration_date < NOW()");
+    
+    // Fetch active jobs
+    $result = $conn->query("SELECT * FROM jobs ORDER BY job_Offered DESC");
+    $jobs = [];
+    while ($row = $result->fetch_assoc()) {
+        $jobs[] = $row;
+    }
+    $conn->close();
+} catch (Exception $e) {
+    $errors[] = "Database error: " . $e->getMessage();
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Job Posting Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .form-container, .job-listings {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .job-card {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .expiration-date {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Company Job Posting Form</h2>
+
+        <?php if (!empty($errors)): ?>
+            <div class="error">
+                <?php foreach ($errors as $error): ?>
+                    <p><?php echo $error; ?></p>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($successMessage)): ?>
+            <div class="success">
+                <p><?php echo $successMessage; ?></p>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" action="">
+            <div class="form-group">
+                <label for="job_Title">Job Title:</label>
+                <input type="text" id="job_Title" name="job_Title" required>
+            </div>
+
+            <div class="form-group">
+                <label for="job_Description">Job Description:</label>
+                <textarea id="job_Description" name="job_Description" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="job_Category">Job Category:</label>
+                <input type="text" id="job_Category" name="job_Category" required>
+            </div>
+
+            <div class="form-group">
+                <label for="job_Vacancy">Number of Vacancies:</label>
+                <input type="number" id="job_Vacancy" name="job_Vacancy" required min="1">
+            </div>
+
+            <div class="form-group">
+                <label for="job_Offered">Posting Date:</label>
+                <input type="datetime-local" id="job_Offered" name="job_Offered" required>
+            </div>
+
+            <div class="form-group">
+                <label for="expiration_date">Expiration Date:</label>
+                <input type="datetime-local" id="expiration_date" name="expiration_date" required>
+            </div>
+
+            <button type="submit" name="submit_job">Post Job Listing</button>
+        </form>
+    </div>
+
+    <div class="job-listings">
+        <h2>Current Job Openings</h2>
+        
+        <?php if (!empty($jobs)): ?>
+            <?php foreach ($jobs as $job): ?>
+                <div class="job-card">
+                    <form method="POST" style="display:inline;">
+                        <input type="hidden" name="job_id" value="<?php echo $job['job_ID']; ?>">
+                        <button type="submit" name="delete_job" class="delete-btn">Delete</button>
+                    </form>
+
+                    <h3><?php echo htmlspecialchars($job['job_Title']); ?></h3>
+                    <p><strong>Category:</strong> <?php echo htmlspecialchars($job['job_Category']); ?></p>
+                    <p><strong>Vacancies:</strong> <?php echo $job['job_Vacancy']; ?></p>
+                    <p><strong>Posted:</strong> <?php echo date('M j, Y g:i a', strtotime($job['job_Offered'])); ?></p>
+                    <p class="expiration-date"><strong>Expires:</strong> <?php echo date('M j, Y g:i a', strtotime($job['expiration_date'])); ?></p>
+                    <p><?php echo nl2br(htmlspecialchars($job['job_Description'])); ?></p>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p>No job openings currently available.</p>
+        <?php endif; ?>
+    </div>
+</body>
+</html>

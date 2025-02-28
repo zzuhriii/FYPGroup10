@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editable Company Profile</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: #3498db;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-bottom: 5px solid #2980b9;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        /* Edit Forms */
+        .edit-form {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-form h2 {
+            margin-top: 0;
+            color: #3498db;
+        }
+
+        .edit-form input, .edit-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .edit-form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .edit-form button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .edit-form button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Display Section */
+        .display-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .display-section h2 {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .display-section p {
+            margin: 10px 0;
+        }
+
+        .display-section ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+
+        .display-section img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            margin-top: 20px;
+            border-top: 5px solid #3498db;
+        }
+
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>Company Profile</h1>
+    </header>
+
+    <div class="container">
+        <!-- Company Overview Form -->
+        <div class="edit-form">
+            <h2>Edit Company Overview</h2>
+            <input type="text" id="companyName" placeholder="Company Name">
+            <input type="text" id="tagline" placeholder="Tagline/Slogan">
+            <input type="text" id="location" placeholder="Location">
+            <input type="text" id="contactInfo" placeholder="Contact Information">
+            <button onclick="updateOverview()">Update Overview</button>
+        </div>
+
+        <!-- History and Background Form -->
+        <div class="edit-form">
+            <h2>Edit History and Background</h2>
+            <input type="text" id="foundingDate" placeholder="Founding Date">
+            <input type="text" id="founders" placeholder="Founders">
+            <textarea id="milestones" placeholder="Milestones (one per line)"></textarea>
+            <button onclick="updateHistory()">Update History</button>
+        </div>
+
+        <!-- Mission and Vision Form -->
+        <div class="edit-form">
+            <h2>Edit Mission and Vision</h2>
+            <textarea id="mission" placeholder="Mission Statement"></textarea>
+            <textarea id="vision" placeholder="Vision Statement"></textarea>
+            <button onclick="updateMissionVision()">Update Mission & Vision</button>
+        </div>
+
+        <!-- Products and Services Form -->
+        <div class="edit-form">
+            <h2>Edit Products and Services</h2>
+            <textarea id="products" placeholder="Products/Services (one per line)"></textarea>
+            <input type="text" id="usp" placeholder="Unique Selling Proposition (USP)">
+            <button onclick="updateProducts()">Update Products & Services</button>
+        </div>
+
+        <!-- Achievements and Awards Form -->
+        <div class="edit-form">
+            <h2>Edit Achievements and Awards</h2>
+            <textarea id="awards" placeholder="Awards/Certifications (one per line)"></textarea>
+            <textarea id="testimonials" placeholder="Testimonials/Case Studies (one per line)"></textarea>
+            <button onclick="updateAchievements()">Update Achievements</button>
+        </div>
+
+        <!-- Visual Elements Form -->
+        <div class="edit-form">
+            <h2>Edit Visual Elements</h2>
+            <input type="text" id="logoUrl" placeholder="Company Logo URL">
+            <input type="text" id="officePhotoUrl" placeholder="Office/Team Photo URL">
+            <input type="text" id="infographicUrl" placeholder="Infographic URL">
+            <button onclick="updateVisuals()">Update Visuals</button>
+        </div>
+
+        <!-- Display Section -->
+        <div class="display-section">
+            <h1>Company Profile</h1>
+
+            <!-- Company Overview Display -->
+            <div class="section">
+                <h2>Company Overview</h2>
+                <p><strong>Name:</strong> <span id="displayCompanyName">[Company Name]</span></p>
+                <p><strong>Tagline/Slogan:</strong> <span id="displayTagline">[Tagline/Slogan]</span></p>
+                <p><strong>Location:</strong> <span id="displayLocation">[Location]</span></p>
+                <p><strong>Contact Information:</strong> <span id="displayContactInfo">[Contact Information]</span></p>
+            </div>
+
+            <!-- History and Background Display -->
+            <div class="section">
+                <h2>History and Background</h2>
+                <p><strong>Founding Date:</strong> <span id="displayFoundingDate">[Founding Date]</span></p>
+                <p><strong>Founders:</strong> <span id="displayFounders">[Founders]</span></p>
+                <p><strong>Milestones:</strong></p>
+                <ul id="displayMilestones">
+                    <li>[Milestone 1]</li>
+                </ul>
+            </div>
+
+            <!-- Mission and Vision Display -->
+            <div class="section">
+                <h2>Mission and Vision Statements</h2>
+                <p><strong>Mission Statement:</strong> <span id="displayMission">[Mission Statement]</span></p>
+                <p><strong>Vision Statement:</strong> <span id="displayVision">[Vision Statement]</span></p>
+            </div>
+
+            <!-- Products and Services Display -->
+            <div class="section">
+                <h2>Products and Services</h2>
+                <p><strong>Product/Service Offerings:</strong></p>
+                <ul id="displayProducts">
+                    <li>[Product/Service 1]</li>
+                </ul>
+                <p><strong>Unique Selling Proposition (USP):</strong> <span id="displayUsp">[USP]</span></p>
+            </div>
+
+            <!-- Achievements and Awards Display -->
+            <div class="section">
+                <h2>Achievements and Awards</h2>
+                <p><strong>Recognition:</strong></p>
+                <ul id="displayAwards">
+                    <li>[Award/Certification 1]</li>
+                </ul>
+                <p><strong>Testimonials/Case Studies:</strong></p>
+                <ul id="displayTestimonials">
+                    <li>[Testimonial/Case Study 1]</li>
+                </ul>
+            </div>
+
+            <!-- Visual Elements Display -->
+            <div class="section">
+                <h2>Visual Elements</h2>
+                <p><strong>Company Logo:</strong></p>
+                <img id="displayLogo" src="" alt="Company Logo" style="max-width: 200px;">
+                <p><strong>Office/Team Photos:</strong></p>
+                <img id="displayOfficePhoto" src="" alt="Office/Team Photo" style="max-width: 200px;">
+                <p><strong>Infographics:</strong></p>
+                <img id="displayInfographic" src="" alt="Infographic" style="max-width: 200px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2023 Your Company Name. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Function to update Company Overview
+        function updateOverview() {
+            document.getElementById('displayCompanyName').textContent = document.getElementById('companyName').value;
+            document.getElementById('displayTagline').textContent = document.getElementById('tagline').value;
+            document.getElementById('displayLocation').textContent = document.getElementById('location').value;
+            document.getElementById('displayContactInfo').textContent = document.getElementById('contactInfo').value;
+        }
+
+        // Function to update History and Background
+        function updateHistory() {
+            document.getElementById('displayFoundingDate').textContent = document.getElementById('foundingDate').value;
+            document.getElementById('displayFounders').textContent = document.getElementById('founders').value;
+            const milestones = document.getElementById('milestones').value.split('\n');
+            const milestonesList = document.getElementById('displayMilestones');
+            milestonesList.innerHTML = milestones.map(milestone => `<li>${milestone}</li>`).join('');
+        }
+
+        // Function to update Mission and Vision
+        function updateMissionVision() {
+            document.getElementById('displayMission').textContent = document.getElementById('mission').value;
+            document.getElementById('displayVision').textContent = document.getElementById('vision').value;
+        }
+
+        // Function to update Products and Services
+        function updateProducts() {
+            const products = document.getElementById('products').value.split('\n');
+            const productsList = document.getElementById('displayProducts');
+            productsList.innerHTML = products.map(product => `<li>${product}</li>`).join('');
+            document.getElementById('displayUsp').textContent = document.getElementById('usp').value;
+        }
+
+        // Function to update Achievements and Awards
+        function updateAchievements() {
+            const awards = document.getElementById('awards').value.split('\n');
+            const awardsList = document.getElementById('displayAwards');
+            awardsList.innerHTML = awards.map(award => `<li>${award}</li>`).join('');
+
+            const testimonials = document.getElementById('testimonials').value.split('\n');
+            const testimonialsList = document.getElementById('displayTestimonials');
+            testimonialsList.innerHTML = testimonials.map(testimonial => `<li>${testimonial}</li>`).join('');
+        }
+
+        // Function to update Visual Elements
+        function updateVisuals() {
+            document.getElementById('displayLogo').src = document.getElementById('logoUrl').value;
+            document.getElementById('displayOfficePhoto').src = document.getElementById('officePhotoUrl').value;
+            document.getElementById('displayInfographic').src = document.getElementById('infographicUrl').value;
+        }
+    </script>
+</body>
+</html>

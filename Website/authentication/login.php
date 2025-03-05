@@ -16,75 +16,52 @@ if ($conn->connect_error) {
 session_start(); // Start the session to store login information
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email_or_ic = $_POST['email_or_ic'];
+    $login_type = $_POST['login_type'];
+    $identifier = $_POST['identifier'];
     $password = $_POST['password'];
+    $remember_username = isset($_POST['remember_username']) ? true : false;
 
-    // Query to find the user by either IC number or email
-    if (filter_var($email_or_ic, FILTER_VALIDATE_EMAIL)) {
-        // If the input is an email, search by email
-        $sql = "SELECT * FROM users WHERE email = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email_or_ic);
+    if ($login_type == 'graduate') {
+        $sql = "SELECT * FROM users WHERE ic_number = ? AND user_type = 'graduate'";
     } else {
-        // Otherwise, treat it as an IC number
-        $sql = "SELECT * FROM users WHERE ic_number = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email_or_ic);
+        $sql = "SELECT * FROM users WHERE email = ? AND user_type = 'company'";
     }
 
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $identifier);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
-        
-  
+
         if (password_verify($password, $user['password'])) {
-          
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_email'] = $user['email'];
-            $_SESSION['user_type'] = $user['user_type']; 
+            $_SESSION['user_type'] = $user['user_type'];
 
-           
-            if ($user['user_type'] == 'graduate') {
-                header("Location: /Website/main/dashboard.php"); 
+            // Remember the username if the checkbox is checked
+            if ($remember_username) {
+                // Set cookie to remember the username for 30 days based on login type
+                setcookie("remember_username_$login_type", $identifier, time() + (30 * 24 * 60 * 60), "/");
             } else {
-                header("Location: /Website/main/dashboard.php"); 
+                // If not checked, remove the cookie
+                setcookie("remember_username_$login_type", '', time() - 3600, "/");
+            }
+
+            if ($login_type == 'graduate') {
+                header("Location: /Website/main/graduate_dashboard.php");
+            } else {
+                header("Location: /Website/main/company_dashboard.php");
             }
             exit();
         } else {
-            echo "Invalid password.";
+            echo "<p class='error-message'>Invalid password.</p>";
         }
     } else {
-        echo "No user found with that email or IC number.";
+        echo "<p class='error-message'>No user found with that identifier.</p>";
     }
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="/Website/css/login.css">
-    <link rel="stylesheet" href="/Website/css/animations.css">
-</head>
-<body>
-    <header class="animate-fadeIn">
-        <h1>Welcome to the Login Page!</h1>
-        <img src="/Website/media/pblogo.png" alt="Your Image" class="top-left-image animate-fadeIn">
-    </header>
-
-    <main class="animate-slideUp">
-        <form action="login.php" method="POST" class="animate-fadeInDelay">
-            <input type="text" name="email_or_ic" placeholder="Email or IC Number" required><br>
-            <input type="password" name="password" placeholder="Password" required><br>
-            <button type="submit" class="animate-fadeInDelay">Login</button>
-        </form>
-
-        <p class="animate-fadeInDelay">Don't have an account? <a href="register_graduate.php">Register as Graduate</a> | <a href="register_company.php">Register as Company</a></p>
-    </main>
-</body>
-</html>

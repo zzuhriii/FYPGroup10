@@ -9,10 +9,10 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "marketing_day";
+$servername = "localhost";  
+$username = "root";         
+$password = "";             
+$dbname = "marketing_day";  
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -23,7 +23,7 @@ if ($conn->connect_error) {
 
 // Get user data
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT name, email, phone, ic_number, profile_pic FROM users WHERE id = ?";
+$sql = "SELECT name, email, phone, ic_number, profile_pic, cv FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -34,7 +34,8 @@ $stmt->close();
 $conn->close();
 
 // Set profile picture or placeholder
-$profile_pic = !empty($user['profile_pic']) ? "uploads/" . $user['profile_pic'] : "/Website/media/placeholder.png";
+$profile_pic = !empty($user['profile_pic']) ? "uploads/profile/" . $user['profile_pic'] : "/Website/media/placeholder.png";
+$cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
 ?>
 
 <!DOCTYPE html>
@@ -48,13 +49,11 @@ $profile_pic = !empty($user['profile_pic']) ? "uploads/" . $user['profile_pic'] 
 <body>
 
     <header>
-    <div class="header-content">
+        <div class="header-content">
             <div class="logo-container">
                 <img src="/Website/media/pblogo.png" alt="Politeknik Logo" class="top-left-image">
             </div>
-
         <h1>Politeknik Brunei - Update Profile</h1>
-        
         <img src="<?php echo htmlspecialchars($profile_pic); ?>" alt="Profile Picture" class="profile-pic">
     </header>
 
@@ -88,9 +87,29 @@ $profile_pic = !empty($user['profile_pic']) ? "uploads/" . $user['profile_pic'] 
             </div>
 
             <div class="input-field">
-                <label for="cv">Upload Your CV (PDF or DOCX):</label>
+                <label for="cv">Upload New CV (PDF or DOCX):</label>
                 <input type="file" name="cv" id="cv" accept=".pdf, .docx">
             </div>
+
+            <?php if ($cv): ?>
+                <div class="input-field">
+                    <label for="current_cv">Current CV:</label>
+                    <span><?php echo htmlspecialchars(basename($cv)); ?></span>
+                    <br>
+                    <button type="submit" name="delete_cv" value="1">Delete CV</button>
+                    <br>
+                    <!-- Preview the CV -->
+                    <?php
+                    $file_extension = pathinfo($cv, PATHINFO_EXTENSION);
+                    if (in_array($file_extension, ['pdf', 'docx'])) {
+                        // Make sure the link to preview the CV is correct
+                        echo "<a href='/Website/user_profile/$cv' target='_blank'>Preview CV</a>";
+                    }
+                    ?>
+                </div>
+            <?php else: ?>
+                <p>No CV uploaded yet. Please upload your CV.</p>
+            <?php endif; ?>
 
             <div class="input-field">
                 <input type="submit" value="Update Profile">

@@ -33,7 +33,7 @@ $user = $result->fetch_assoc();
 
 
 $user_type = $user['user_type'];
-$profile_pic = !empty($user['profile_pic']) ? "/Website/user_profile/uploads/" . $user['profile_pic'] : "/Website/media/placeholder.png";
+$profile_pic = !empty($user['profile_pic']) ? "/Website/user_profile/uploads/profile/" . $user['profile_pic'] : "/Website/media/placeholder.png";
 ?>
 <!DOCTYPE html>
 <html lang="en">

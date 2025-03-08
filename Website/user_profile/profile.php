@@ -155,32 +155,6 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
                     <label for="profile_pic">Upload New Profile Picture:</label>
                     <input type="file" name="profile_pic" id="profile_pic">
                 </div>
-
-                <div class="input-field">
-                    <label for="cv">Upload Existing CV (PDF or DOCX):</label>
-                    <input type="file" name="cv" id="cv" accept=".pdf, .docx">
-                </div>
-
-                <?php if ($cv): ?>
-                    <div class="input-field">
-                        <label for="current_cv">Current CV:</label>
-                        <span><?php echo htmlspecialchars(basename($cv)); ?></span>
-                        <br>
-                        <button type="submit" name="delete_cv" value="1">Delete CV</button>
-                        <br>
-                        <!-- Preview the CV -->
-                        <?php
-                        $file_extension = pathinfo($cv, PATHINFO_EXTENSION);
-                        if (in_array($file_extension, ['pdf', 'docx'])) {
-                            // Make sure the link to preview the CV is correct
-                            echo "<a href='/Website/user_profile/$cv' target='_blank'>Preview CV</a>";
-                        }
-                        ?>
-                        
-                    </div>
-                <?php else: ?>
-                    <p>No CV uploaded yet. You can upload an existing CV or auto-generate one from your profile details.</p>
-                <?php endif; ?>
             </div>
             
             <!-- Education Background Tab -->

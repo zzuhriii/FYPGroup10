@@ -23,37 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $user_id = $_SESSION['user_id'];
-    
-    // Handle CV deletion if requested
-    if (isset($_POST['delete_cv']) && $_POST['delete_cv'] == 1) {
-        // Get current CV filename
-        $sql = "SELECT cv FROM users WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
-        $stmt->close();
-        
-        // Delete file if exists
-        if (!empty($user['cv'])) {
-            $cv_path = "uploads/cv/" . $user['cv'];
-            if (file_exists($cv_path)) {
-                unlink($cv_path);
-            }
-        }
-        
-        // Update database to remove CV reference
-        $sql = "UPDATE users SET cv = NULL WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $stmt->close();
-        
-        header("Location: profile.php");
-        exit();
-    }
+    $user_id = $_SESSION['user_id'];  
     
     // Process personal details
     $name = $_POST['name'];
@@ -101,36 +71,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
     
-    // Handle CV upload or auto-generated CV
-    $cv_name = null;
+ // Handle CV upload or auto-generated CV
+ $cv_name = null;
     
-    // Check if we're auto-generating a CV
-    if (isset($_POST['auto_generate_cv']) && $_POST['auto_generate_cv'] == '1' && isset($_POST['cv_content'])) {
-        // Create upload directory if it doesn't exist
-        $upload_dir = "uploads/cv/";
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755, true);
-        }
-        
-        // Generate unique filename for the HTML CV
-        $cv_name = time() . '_' . $name . '_CV.html';
-        $cv_path = $upload_dir . $cv_name;
-        
-        // Create HTML file with proper formatting
-        $cv_html = '<!DOCTYPE html>
+ // Check if we're auto-generating a CV
+ if (isset($_POST['auto_generate_cv']) && $_POST['auto_generate_cv'] == '1' && isset($_POST['cv_content'])) {
+     // Create upload directory if it doesn't exist
+     $upload_dir = "uploads/cv/";
+     if (!is_dir($upload_dir)) {
+         mkdir($upload_dir, 0755, true);
+     }
+     
+     // Get current CV filename to delete old file if exists
+     $sql = "SELECT cv FROM users WHERE id = ?";
+     $stmt = $conn->prepare($sql);
+     $stmt->bind_param("i", $user_id);
+     $stmt->execute();
+     $result = $stmt->get_result();
+     $user_data = $result->fetch_assoc();
+     $stmt->close();
+     
+     if (!empty($user_data['cv'])) {
+         $old_cv_path = $upload_dir . $user_data['cv'];
+         if (file_exists($old_cv_path)) {
+             unlink($old_cv_path);
+         }
+     }
+     
+     // Generate unique filename for the HTML CV using user ID
+     $cv_name = 'user_' . $user_id . '_CV_' . time() . '.html';
+     $cv_path = $upload_dir . $cv_name;
+     
+     // Create HTML file with proper formatting
+     $cv_html = '<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV - ' . htmlspecialchars($name) . '</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>CV - ' . htmlspecialchars($name) . '</title>
+ <style>
+     body {
+         font-family: Arial, sans-serif;
+         line-height: 1.6;
+         margin: 0;
+         padding: 20px;
+         color: #333;
+     }
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -258,15 +244,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Then insert the new education records
         $education_data = $_POST['education'];
         
-        foreach ($education_data as $edu) {
+        foreach ($education_data as $index => $edu) {
             if (!empty($edu['education_level']) && !empty($edu['institution']) && 
                 !empty($edu['field_of_study']) && !empty($edu['graduation_year'])) {
                 
-                $sql = "INSERT INTO education (user_id, education_level, institution, field_of_study, graduation_year) 
-                        VALUES (?, ?, ?, ?, ?)";
+                // Handle certificate upload
+                $certificate_name = null;
+                if (isset($_FILES['education']) && isset($_FILES['education']['name'][$index]['certificate']) && 
+                    $_FILES['education']['error'][$index]['certificate'] == 0) {
+                    
+                    $allowed_types = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+                    $file_type = $_FILES['education']['type'][$index]['certificate'];
+                    $file_size = $_FILES['education']['size'][$index]['certificate'];
+                    $max_size = 5 * 1024 * 1024; // 5MB
+                    
+                    if ((in_array($file_type, $allowed_types) || strpos($file_type, 'pdf') !== false) && $file_size <= $max_size) {
+                        // Create upload directory if it doesn't exist
+                        $upload_dir = "uploads/certificates/";
+                        if (!is_dir($upload_dir)) {
+                            mkdir($upload_dir, 0755, true);
+                        }
+                        
+                        // Generate unique filename
+                        $certificate_name = time() . '_edu_' . $index . '_' . basename($_FILES['education']['name'][$index]['certificate']);
+                        $certificate_path = $upload_dir . $certificate_name;
+                        
+                        // Move uploaded file
+                        move_uploaded_file($_FILES['education']['tmp_name'][$index]['certificate'], $certificate_path);
+                    }
+                }
+                
+                $sql = "INSERT INTO education (user_id, education_level, institution, field_of_study, graduation_year, certificate) 
+                        VALUES (?, ?, ?, ?, ?, ?)";
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param("isssi", $user_id, $edu['education_level'], $edu['institution'], 
-                                $edu['field_of_study'], $edu['graduation_year']);
+                $stmt->bind_param("isssis", $user_id, $edu['education_level'], $edu['institution'], 
+                                $edu['field_of_study'], $edu['graduation_year'], $certificate_name);
                 $stmt->execute();
                 $stmt->close();
             }
@@ -285,13 +297,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Then insert the new achievement records
         $achievement_data = $_POST['achievements'];
         
-        foreach ($achievement_data as $ach) {
+        foreach ($achievement_data as $index => $ach) {
             if (!empty($ach['title']) && !empty($ach['description']) && !empty($ach['year'])) {
                 
-                $sql = "INSERT INTO achievements (user_id, title, description, year) 
-                        VALUES (?, ?, ?, ?)";
+                // Handle certificate upload
+                $certificate_name = null;
+                if (isset($_FILES['achievements']) && isset($_FILES['achievements']['name'][$index]['certificate']) && 
+                    $_FILES['achievements']['error'][$index]['certificate'] == 0) {
+                    
+                    $allowed_types = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+                    $file_type = $_FILES['achievements']['type'][$index]['certificate'];
+                    $file_size = $_FILES['achievements']['size'][$index]['certificate'];
+                    $max_size = 5 * 1024 * 1024; // 5MB
+                    
+                    if ((in_array($file_type, $allowed_types) || strpos($file_type, 'pdf') !== false) && $file_size <= $max_size) {
+                        // Create upload directory if it doesn't exist
+                        $upload_dir = "uploads/certificates/";
+                        if (!is_dir($upload_dir)) {
+                            mkdir($upload_dir, 0755, true);
+                        }
+                        
+                        // Generate unique filename
+                        $certificate_name = time() . '_ach_' . $index . '_' . basename($_FILES['achievements']['name'][$index]['certificate']);
+                        $certificate_path = $upload_dir . $certificate_name;
+                        
+                        // Move uploaded file
+                        move_uploaded_file($_FILES['achievements']['tmp_name'][$index]['certificate'], $certificate_path);
+                    }
+                }
+                
+                $sql = "INSERT INTO achievements (user_id, title, description, year, certificate) 
+                        VALUES (?, ?, ?, ?, ?)";
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param("issi", $user_id, $ach['title'], $ach['description'], $ach['year']);
+                $stmt->bind_param("issis", $user_id, $ach['title'], $ach['description'], $ach['year'], $certificate_name);
                 $stmt->execute();
                 $stmt->close();
             }

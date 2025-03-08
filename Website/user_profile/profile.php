@@ -157,116 +157,139 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
                 </div>
             </div>
             
-            <!-- Education Background Tab -->
-            <div id="education" class="tab-content">
-                <h2>Education Background</h2>
-                <div id="education-container">
-                    <?php if (!empty($education)): ?>
-                        <?php foreach ($education as $index => $edu): ?>
-                            <div class="form-section education-entry">
-                                <div class="input-field">
-                                    <label for="education_level_<?php echo $index; ?>">Education Level:</label>
-                                    <select name="education[<?php echo $index; ?>][education_level]" id="education_level_<?php echo $index; ?>" required>
-                                        <option value="">Select Level</option>
-                                        <option value="Secondary" <?php echo ($edu['education_level'] == 'Secondary') ? 'selected' : ''; ?>>Secondary</option>
-                                        <option value="Diploma" <?php echo ($edu['education_level'] == 'Diploma') ? 'selected' : ''; ?>>Diploma</option>
-                                        <option value="Bachelor" <?php echo ($edu['education_level'] == 'Bachelor') ? 'selected' : ''; ?>>Bachelor's Degree</option>
-                                        <option value="Master" <?php echo ($edu['education_level'] == 'Master') ? 'selected' : ''; ?>>Master's Degree</option>
-                                        <option value="PhD" <?php echo ($edu['education_level'] == 'PhD') ? 'selected' : ''; ?>>PhD</option>
-                                    </select>
-                                </div>
-                                <div class="input-field">
-                                    <label for="institution_<?php echo $index; ?>">Institution:</label>
-                                    <input type="text" id="institution_<?php echo $index; ?>" name="education[<?php echo $index; ?>][institution]" value="<?php echo htmlspecialchars($edu['institution']); ?>" required>
-                                </div>
-                                <div class="input-field">
-                                    <label for="field_of_study_<?php echo $index; ?>">Field of Study:</label>
-                                    <input type="text" id="field_of_study_<?php echo $index; ?>" name="education[<?php echo $index; ?>][field_of_study]" value="<?php echo htmlspecialchars($edu['field_of_study']); ?>" required>
-                                </div>
-                                <div class="input-field">
-                                    <label for="graduation_year_<?php echo $index; ?>">Graduation Year:</label>
-                                    <input type="number" id="graduation_year_<?php echo $index; ?>" name="education[<?php echo $index; ?>][graduation_year]" min="1950" max="2030" value="<?php echo htmlspecialchars($edu['graduation_year']); ?>" required>
-                                </div>
-                                <?php if ($index > 0): ?>
-                                    <button type="button" class="remove-btn remove-education">Remove</button>
-                                <?php endif; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="form-section education-entry">
-                            <div class="input-field">
-                                <label for="education_level_0">Education Level:</label>
-                                <select name="education[0][education_level]" id="education_level_0" required>
-                                    <option value="">Select Level</option>
-                                    <option value="Secondary">Secondary</option>
-                                    <option value="Diploma">Diploma</option>
-                                    <option value="Bachelor">Bachelor's Degree</option>
-                                    <option value="Master">Master's Degree</option>
-                                    <option value="PhD">PhD</option>
-                                </select>
-                            </div>
-                            <div class="input-field">
-                                <label for="institution_0">Institution:</label>
-                                <input type="text" id="institution_0" name="education[0][institution]" required>
-                            </div>
-                            <div class="input-field">
-                                <label for="field_of_study_0">Field of Study:</label>
-                                <input type="text" id="field_of_study_0" name="education[0][field_of_study]" required>
-                            </div>
-                            <div class="input-field">
-                                <label for="graduation_year_0">Graduation Year:</label>
-                                <input type="number" id="graduation_year_0" name="education[0][graduation_year]" min="1950" max="2030" required>
-                            </div>
-                        </div>
+           <!-- Education Background Tab -->
+<div id="education" class="tab-content">
+    <h2>Education Background</h2>
+    <div id="education-container">
+        <?php if (!empty($education)): ?>
+            <?php foreach ($education as $index => $edu): ?>
+                <div class="form-section education-entry">
+                    <div class="input-field">
+                        <label for="education_level_<?php echo $index; ?>">Education Level:</label>
+                        <select name="education[<?php echo $index; ?>][education_level]" id="education_level_<?php echo $index; ?>" required>
+                            <option value="">Select Level</option>
+                            <option value="Secondary" <?php echo ($edu['education_level'] == 'Secondary') ? 'selected' : ''; ?>>Secondary</option>
+                            <option value="Diploma" <?php echo ($edu['education_level'] == 'Diploma') ? 'selected' : ''; ?>>Diploma</option>
+                            <option value="Bachelor" <?php echo ($edu['education_level'] == 'Bachelor') ? 'selected' : ''; ?>>Bachelor's Degree</option>
+                            <option value="Master" <?php echo ($edu['education_level'] == 'Master') ? 'selected' : ''; ?>>Master's Degree</option>
+                            <option value="PhD" <?php echo ($edu['education_level'] == 'PhD') ? 'selected' : ''; ?>>PhD</option>
+                        </select>
+                    </div>
+                    <div class="input-field">
+                        <label for="institution_<?php echo $index; ?>">Institution:</label>
+                        <input type="text" id="institution_<?php echo $index; ?>" name="education[<?php echo $index; ?>][institution]" value="<?php echo htmlspecialchars($edu['institution']); ?>" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="field_of_study_<?php echo $index; ?>">Field of Study:</label>
+                        <input type="text" id="field_of_study_<?php echo $index; ?>" name="education[<?php echo $index; ?>][field_of_study]" value="<?php echo htmlspecialchars($edu['field_of_study']); ?>" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="graduation_year_<?php echo $index; ?>">Graduation Year:</label>
+                        <input type="number" id="graduation_year_<?php echo $index; ?>" name="education[<?php echo $index; ?>][graduation_year]" min="1950" max="2030" value="<?php echo htmlspecialchars($edu['graduation_year']); ?>" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="education_cert_<?php echo $index; ?>">Upload Certificate:</label>
+                        <input type="file" id="education_cert_<?php echo $index; ?>" name="education[<?php echo $index; ?>][certificate]" accept=".pdf,.jpg,.jpeg,.png">
+                        <?php if (!empty($edu['certificate'])): ?>
+                            <p class="file-info">Current certificate: <?php echo htmlspecialchars($edu['certificate']); ?></p>
+                        <?php endif; ?>
+                    </div>
+                    <?php if ($index > 0): ?>
+                        <button type="button" class="remove-btn remove-education">Remove</button>
                     <?php endif; ?>
                 </div>
-                <button type="button" class="add-btn" id="add-education">Add Another Education</button>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="form-section education-entry">
+                <div class="input-field">
+                    <label for="education_level_0">Education Level:</label>
+                    <select name="education[0][education_level]" id="education_level_0" required>
+                        <option value="">Select Level</option>
+                        <option value="Secondary">Secondary</option>
+                        <option value="Diploma">Diploma</option>
+                        <option value="Bachelor">Bachelor's Degree</option>
+                        <option value="Master">Master's Degree</option>
+                        <option value="PhD">PhD</option>
+                    </select>
+                </div>
+                <div class="input-field">
+                    <label for="institution_0">Institution:</label>
+                    <input type="text" id="institution_0" name="education[0][institution]" required>
+                </div>
+                <div class="input-field">
+                    <label for="field_of_study_0">Field of Study:</label>
+                    <input type="text" id="field_of_study_0" name="education[0][field_of_study]" required>
+                </div>
+                <div class="input-field">
+                    <label for="graduation_year_0">Graduation Year:</label>
+                    <input type="number" id="graduation_year_0" name="education[0][graduation_year]" min="1950" max="2030" required>
+                </div>
+                <div class="input-field">
+                    <label for="education_cert_0">Upload Certificate:</label>
+                    <input type="file" id="education_cert_0" name="education[0][certificate]" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
             </div>
+        <?php endif; ?>
+    </div>
+    <button type="button" class="add-btn" id="add-education">Add Another Education</button>
+</div>
+
             
-            <!-- Achievements Tab -->
-            <div id="achievements" class="tab-content">
-                <h2>Achievements</h2>
-                <div id="achievements-container">
-                    <?php if (!empty($achievements)): ?>
-                        <?php foreach ($achievements as $index => $ach): ?>
-                            <div class="form-section achievement-entry">
-                                <div class="input-field">
-                                    <label for="achievement_title_<?php echo $index; ?>">Title:</label>
-                                    <input type="text" id="achievement_title_<?php echo $index; ?>" name="achievements[<?php echo $index; ?>][title]" value="<?php echo htmlspecialchars($ach['title']); ?>" required>
-                                </div>
-                                <div class="input-field">
-                                    <label for="achievement_description_<?php echo $index; ?>">Description:</label>
-                                    <textarea id="achievement_description_<?php echo $index; ?>" name="achievements[<?php echo $index; ?>][description]" rows="3" required><?php echo htmlspecialchars($ach['description']); ?></textarea>
-                                </div>
-                                <div class="input-field">
-                                    <label for="achievement_year_<?php echo $index; ?>">Year:</label>
-                                    <input type="number" id="achievement_year_<?php echo $index; ?>" name="achievements[<?php echo $index; ?>][year]" min="1950" max="2030" value="<?php echo htmlspecialchars($ach['year']); ?>" required>
-                                </div>
-                                <?php if ($index > 0): ?>
-                                    <button type="button" class="remove-btn remove-achievement">Remove</button>
-                                <?php endif; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="form-section achievement-entry">
-                            <div class="input-field">
-                                <label for="achievement_title_0">Title:</label>
-                                <input type="text" id="achievement_title_0" name="achievements[0][title]" required>
-                            </div>
-                            <div class="input-field">
-                                <label for="achievement_description_0">Description:</label>
-                                <textarea id="achievement_description_0" name="achievements[0][description]" rows="3" required></textarea>
-                            </div>
-                            <div class="input-field">
-                                <label for="achievement_year_0">Year:</label>
-                                <input type="number" id="achievement_year_0" name="achievements[0][year]" min="1950" max="2030" required>
-                            </div>
-                        </div>
+       <!-- Achievements Tab -->
+<div id="achievements" class="tab-content">
+    <h2>Achievements</h2>
+    <div id="achievements-container">
+        <?php if (!empty($achievements)): ?>
+            <?php foreach ($achievements as $index => $ach): ?>
+                <div class="form-section achievement-entry">
+                    <div class="input-field">
+                        <label for="achievement_title_<?php echo $index; ?>">Title:</label>
+                        <input type="text" id="achievement_title_<?php echo $index; ?>" name="achievements[<?php echo $index; ?>][title]" value="<?php echo htmlspecialchars($ach['title']); ?>" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="achievement_description_<?php echo $index; ?>">Description:</label>
+                        <textarea id="achievement_description_<?php echo $index; ?>" name="achievements[<?php echo $index; ?>][description]" rows="3" required><?php echo htmlspecialchars($ach['description']); ?></textarea>
+                    </div>
+                    <div class="input-field">
+                        <label for="achievement_year_<?php echo $index; ?>">Year:</label>
+                        <input type="number" id="achievement_year_<?php echo $index; ?>" name="achievements[<?php echo $index; ?>][year]" min="1950" max="2030" value="<?php echo htmlspecialchars($ach['year']); ?>" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="achievement_cert_<?php echo $index; ?>">Upload Certificate/Evidence:</label>
+                        <input type="file" id="achievement_cert_<?php echo $index; ?>" name="achievements[<?php echo $index; ?>][certificate]" accept=".pdf,.jpg,.jpeg,.png">
+                        <?php if (!empty($ach['certificate'])): ?>
+                            <p class="file-info">Current certificate: <?php echo htmlspecialchars($ach['certificate']); ?></p>
+                        <?php endif; ?>
+                    </div>
+                    <?php if ($index > 0): ?>
+                        <button type="button" class="remove-btn remove-achievement">Remove</button>
                     <?php endif; ?>
                 </div>
-                <button type="button" class="add-btn" id="add-achievement">Add Another Achievement</button>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="form-section achievement-entry">
+                <div class="input-field">
+                    <label for="achievement_title_0">Title:</label>
+                    <input type="text" id="achievement_title_0" name="achievements[0][title]" required>
+                </div>
+                <div class="input-field">
+                    <label for="achievement_description_0">Description:</label>
+                    <textarea id="achievement_description_0" name="achievements[0][description]" rows="3" required></textarea>
+                </div>
+                <div class="input-field">
+                    <label for="achievement_year_0">Year:</label>
+                    <input type="number" id="achievement_year_0" name="achievements[0][year]" min="1950" max="2030" required>
+                </div>
+                <div class="input-field">
+                    <label for="achievement_cert_0">Upload Certificate/Evidence:</label>
+                    <input type="file" id="achievement_cert_0" name="achievements[0][certificate]" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
             </div>
-            
+        <?php endif; ?>
+    </div>
+    <button type="button" class="add-btn" id="add-achievement">Add Another Achievement</button>
+</div>
+
             <!-- Work Experience Tab -->
             <div id="work" class="tab-content">
                 <h2>Work Experience</h2>
@@ -428,6 +451,10 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
                         <label for="graduation_year_${newIndex}">Graduation Year:</label>
                         <input type="number" id="graduation_year_${newIndex}" name="education[${newIndex}][graduation_year]" min="1950" max="2030" required>
                     </div>
+                    <div class="input-field">
+                        <label for="education_cert_${newIndex}">Upload Certificate:</label>
+                        <input type="file" id="education_cert_${newIndex}" name="education[${newIndex}][certificate]" accept=".pdf,.jpg,.jpeg,.png" required>
+                    </div>
                     <button type="button" class="remove-btn remove-education">Remove</button>
                 `;
                 
@@ -455,6 +482,10 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
                     <div class="input-field">
                         <label for="achievement_year_${newIndex}">Year:</label>
                         <input type="number" id="achievement_year_${newIndex}" name="achievements[${newIndex}][year]" min="1950" max="2030" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="achievement_cert_${newIndex}">Upload Certificate/Evidence:</label>
+                        <input type="file" id="achievement_cert_${newIndex}" name="achievements[${newIndex}][certificate]" accept=".pdf,.jpg,.jpeg,.png" required>
                     </div>
                     <button type="button" class="remove-btn remove-achievement">Remove</button>
                 `;

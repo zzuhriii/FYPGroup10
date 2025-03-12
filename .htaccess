@@ -1,0 +1,17 @@
+# Enable custom error pages
+ErrorDocument 404 /Website/404.php
+
+# Prevent directory listing
+Options -Indexes
+
+# Set default character set
+AddDefaultCharset UTF-8
+
+# Enable URL rewriting
+RewriteEngine On
+RewriteBase /Website/
+
+# Redirect to 404 page for non-existent files
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ 404.php [L]

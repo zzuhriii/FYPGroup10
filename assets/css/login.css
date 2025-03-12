@@ -1,0 +1,220 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #f4f4f9; 
+    color: #333; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-size: 16px;
+}
+
+header {
+    text-align: center;
+    position: absolute;
+    top: 0%; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: #004d99;
+    opacity: 0;
+    animation: fadeIn 0.8s ease-out forwards; 
+}
+
+h1 {
+    display: block;
+    font-size: 2em;
+    margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+    unicode-bidi: isolate;
+    color: black;
+}
+
+main {
+    background-color: #fff; 
+    padding: 40px 30px; 
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    opacity: 0;
+    animation: slideUp 0.8s ease-out forwards; 
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    opacity: 0;
+    animation: fadeInDelay 0.8s ease-out forwards; 
+}
+
+.top-left-image {
+    position: absolute;
+    top: 1rem;
+    left: 2rem;
+    width: 80px;
+    opacity: 0;
+    animation: slideInLeft 0.8s ease-out forwards;
+}
+
+input {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    opacity: 0;
+    animation: fadeIn 0.8s ease-out forwards; 
+}
+
+input[type="email"],
+input[type="password"] {
+    background-color: #f9f9f9;
+}
+
+input:focus {
+    outline: none;
+    border-color: #004d99; 
+}
+
+button {
+    padding: 12px;
+    background-color: #004d99; 
+    color: white;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    opacity: 0;
+    animation: fadeInDelay 0.8s ease-out forwards; 
+}
+
+button:hover {
+    background-color: #003366; 
+    transform: scale(1.05); 
+}
+
+p {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #666;
+}
+
+a {
+    color: #004d99;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    header h1 {
+        font-size: 2.5rem;
+    }
+
+    main {
+        padding: 30px;
+        width: 90%;
+    }
+
+    input, button {
+        font-size: 1rem;
+    }
+}
+.back-button-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    background: #dc3545; /* Red color for the back button */
+    transition: background-color 0.3s ease;
+}
+
+.back-btn:hover {
+    background: #c82333; /* Darker red for hover */
+}
+
+@media (max-width: 768px) {
+    .back-btn {
+        padding: 0.8rem 1.8rem;
+        font-size: 1rem;
+    }
+}
+
+/* Keyframe Animations */
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInDelay {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

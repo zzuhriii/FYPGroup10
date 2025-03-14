@@ -1,133 +1,70 @@
 <?php
     include 'header.php';
+
+    // Fetch non-expired jobs, ordered by latest first
+    $sql = "SELECT * FROM jobs WHERE is_expired = FALSE ORDER BY job_Created DESC";
+    $result = mysqli_query($conn, $sql);
+
+    // Check for query errors
+    if (!$result) {
+        die("Database query failed: " . mysqli_error($conn));
+    }
+
+    // Get the number of rows
+    $queryResults = mysqli_num_rows($result);
 ?>
 
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Canvas Homepage Template</title>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f8f9fa;
-      color: #333;
-    }
-    header {
-      background-color: #343a40;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    nav {
-      background-color: #007bff;
-      padding: 1rem;
-      text-align: center;
-    }
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin: 0 1rem;
-    }
-    main {
-      padding: 2rem;
-      text-align: center;
-    }
-    footer {
-      background-color: #343a40;
-      color: white;
-      padding: 1rem;
-      position: relative;
-      text-align: center;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .cta {
-      background-color: #007bff;
-      color: white;
-      padding: 1rem 2rem;
-      display: inline-block;
-      text-decoration: none;
-      border-radius: 4px;
-    }
-    .search-container {
-      margin: 2rem 0;
-      text-align: center;
-    }
-    .search-container input[type="text"] {
-      padding: 0.5rem;
-      width: 300px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    .search-container button {
-      padding: 0.5rem 1rem;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-  </style>
-</head> -->
-
 <body>
-
-<header>
-  <h1>HomePage</h1>
+<header class="header-container">
+    <img src="media/pblogo.png" alt="Politeknik Brunei Logo">
+    <h1>Homepage</h1>
 </header>
 
 <nav>
-  <a href="#">Home</a>
-  <a href="#">About Us</a>
-  <a href="#">Services</a>
-  <a href="#">Contact</a>
+    <a href="homepage_student.php">Home</a>
+    <a href="#">About Us</a>
+    <a href="#">Services</a>
+    <a href="#">Contact</a>
 </nav>
 
 <main class="container">
-  <section>
-    <div class="search-container">
-        <form action="search_function.php" method="POST">
-            <input type="text" name="search" id="search" placeholder="Search...">
-      <!-- <select id="category">
-        <option value="">Select Category</option>
-        <option value="news">News</option>
-        <option value="products">Products</option>
-        <option value="articles">Articles</option>
-      </select> -->
-            <button type="submit" name="submit-search">Search</button>
-        </form>
-    </div>
-    <h2>Jobs available:</h2>
-    <div class="jobs-container">
-        <?php
-            $sql = "SELECT * FROM jobs";
-            $result = mysqli_query($conn, $sql);
-            $queryResults = mysqli_num_rows($result);
+    <section>
+        <div class="search-container">
+            <form action="search_function.php" method="POST">
+                <input type="text" name="search" id="search" placeholder="Search...">
+                <button type="submit" name="submit-search">Search</button>
+            </form>
+        </div>
+        <h2>Latest Jobs Posted:</h2>
+        <div class="jobs-container">
+            <?php
+                if ($queryResults > 0) {
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        // Truncate description for display
+                        $truncatedDescription = strlen($row['job_Description']) > 50 ? mb_substr($row['job_Description'], 0, 50, 'UTF-8') . '...' : $row['job_Description'];
 
-            if ($queryResults > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo "<div class='jobs-box'>
-                        <h3>".$row['job_Title']."</h3>
-                        <p>".$row['job_Description']."</p>
-                    </div>";
+                        // Output job details
+                        echo "<a href='job_page.php?title=".urlencode($row['job_Title'])."&id=".intval($row['job_ID'])."' class='job-link'>
+                            <div class='jobs-box'>
+                                <h3>".htmlspecialchars($row['job_Title'])."</h3>
+                                <p>".htmlspecialchars($truncatedDescription)."</p>
+                                <div class='details-row'>
+                                    <p class='deadline'><br>Application Deadline:<br> ".htmlspecialchars($row['application_deadline'])."</p>
+                                    <p class='salary'><br>Salary:<br> BND".htmlspecialchars($row['minimum_salary'])." - BND".htmlspecialchars($row['maximum_salary'])."</p>
+                                </div>
+                            </div>
+                        </a>";
+                    }
+                } else {
+                    echo "<p>No jobs available at the moment.</p>";
                 }
-            }
-        ?>
-    </div>
-    <a href="#" class="cta">Get Started</a>
-  </section>
+            ?>
+        </div>
+    </section>
 </main>
 
 <footer>
-  <p>&copy; 2025 TheSpinningCat Enterprise. All rights reserved.</p>
+    <p>&copy; 2025 Politeknik Brunei. All Rights Reserved.</p>
 </footer>
-
-
 </body>
 </html>

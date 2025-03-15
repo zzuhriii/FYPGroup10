@@ -32,14 +32,10 @@ $sql = "CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    ic_number VARCHAR(12) NOT NULL,
-    phone_number VARCHAR(15) NOT NULL,
-    user_type VARCHAR(50) DEFAULT 'user',
-    profile_pic VARCHAR(255) DEFAULT '/Website/assets/images/placeholder.png',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )";
 if ($conn->query($sql) === FALSE) {
-    die('Error creating users table: ' . $conn->error);
+    die("Error creating users table: " . $conn->error);
 }
 
 // CV table for storing graduate CVs
@@ -137,6 +133,8 @@ $sql = "CREATE TABLE IF NOT EXISTS students (
 if ($conn->query($sql) === FALSE) {
     die("Error creating students table: " . $conn->error);
 }
+
+//
 ?>
 
 

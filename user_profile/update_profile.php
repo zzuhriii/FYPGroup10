@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 // Check if form was submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Database connection
-    require_once '/Website/includes/db.php';
+    require_once '../includes/db.php';
 
     $user_id = $_SESSION['user_id'];  
     

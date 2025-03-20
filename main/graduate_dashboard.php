@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Database connection
-require_once '/Website/includes/db.php';
+require_once '../includes/db.php';
 
 // Get user details
 $user_id = $_SESSION['user_id'];

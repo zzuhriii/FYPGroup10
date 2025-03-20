@@ -1,6 +1,6 @@
 <?php
 // Database connection
-require_once '/Website/includes/db.php';
+require_once '../includes/db.php';
 
 session_start(); // Start the session to store login information
 
@@ -46,10 +46,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             exit();
         } else {
-            echo "<p class='error-message'>Invalid password.</p>";
+            // Store error message in session instead of echoing it
+            $_SESSION['login_error'] = "Invalid password.";
+            $_SESSION['login_type'] = $login_type; // Remember which tab was active
+            header("Location: /Website/index.php");
+            exit();
         }
     } else {
-        echo "<p class='error-message'>No user found with that identifier.</p>";
+        // Store error message in session instead of echoing it
+        if ($login_type == 'graduate') {
+            $_SESSION['login_error'] = "No graduate found with that IC number.";
+        } else {
+            $_SESSION['login_error'] = "No company found with that email.";
+        }
+        $_SESSION['login_type'] = $login_type; // Remember which tab was active
+        header("Location: /Website/index.php");
+        exit();
     }
 }
 ?>

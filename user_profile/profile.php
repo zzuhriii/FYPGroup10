@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Database connection
-require_once '/Website/includes/db.php';
+require_once '../includes/db.php';
 
 // Get user data
 $user_id = $_SESSION['user_id'];
@@ -90,7 +90,7 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Page - Politeknik Brunei</title>
     <link rel="stylesheet" href="/Website/assets/css/profile.css">
-   
+  
 </head>
 <body>
     <script src="/Website/assets/js/profile.js"></script>
@@ -277,7 +277,8 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
                     <input type="file" id="achievement_cert_0" name="achievements[0][certificate]" accept=".pdf,.jpg,.jpeg,.png">
                 </div>
             </div>
-        <?php endif; ?>
+        <?php endif; 
+        ?>
     </div>
     <button type="button" class="add-btn" id="add-achievement">Add Another Achievement</button>
 </div>
@@ -348,14 +349,32 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
             <div id="cv" class="tab-content">
                 <h2>Auto-Generated CV</h2>
                 <p>This tab shows your auto-generated CV based on the information provided in other tabs.</p>
+                
+                <?php if (!empty($user['cv'])): ?>
+                <div class="current-cv-container">
+                    <h3>Current CV</h3>
+                    <p>You already have a CV saved to your profile.</p>
+                    <div class="input-field">
+                        <a href="/Website/user_profile/uploads/cv/<?php echo htmlspecialchars($user['cv']); ?>" target="_blank" class="view-cv-btn">View Current CV</a>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
                 <p>Click the "Generate CV" button to preview your CV, then click "Save CV" to save it to your profile.</p>
                 
                 <button type="button" id="generate-cv-btn" class="add-btn">Generate CV Preview</button>
                 
                 <div id="cv-preview" class="cv-preview" style="display: none;">
                     <div class="cv-section cv-header">
-                        <h2 id="cv-name"></h2>
-                        <p id="cv-contact"></p>
+                        <div class="cv-header-content">
+                            <div class="cv-header-text">
+                                <h2 id="cv-name"></h2>
+                                <p id="cv-contact"></p>
+                            </div>
+                            <div class="cv-profile-pic">
+                                <img id="cv-profile-image" src="" alt="Profile Picture">
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="cv-section">
@@ -378,6 +397,11 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
                     <input type="hidden" name="auto_generate_cv" id="auto_generate_cv" value="0">
                     <button type="button" id="save-cv-btn" class="add-btn">Save Generated CV</button>
                 </div>
+                
+                <!-- New button to open CV in new tab -->
+                <div class="input-field" style="margin-top: 20px; display: none;" id="open-cv-container">
+                    <button type="button" id="open-cv-tab-btn" class="add-btn">Open CV in New Tab</button>
+                </div>
             </div>
         </form>
         
@@ -390,8 +414,6 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
     <footer class="footer">
         <p>&copy; 2025 Politeknik Brunei.</p>
     </footer>
-
-
 
 </body>
 </html>

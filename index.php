@@ -12,13 +12,25 @@ require_once __DIR__ . '/includes/db.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Politeknik Brunei Marketing Day</title>
     <link rel="stylesheet" href="/Website/assets/css/index.css">
+
 </head>
 <body>
+    <!-- Error popup will be displayed here if there's an error -->
+    <?php if(isset($_SESSION['login_error'])): ?>
+    <div class="error-popup">
+        <?php 
+            echo $_SESSION['login_error']; 
+            unset($_SESSION['login_error']); // Clear the error after displaying it
+        ?>
+    </div>
+    <?php endif; ?>
+
     <!-- Decorative elements -->
     <div class="pb-decoration"></div>
     <div class="pb-decoration"></div>
     <div class="pb-decoration"></div>
 
+    <!-- Rest of your HTML remains unchanged -->
     <header class="header-container">
         <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo">
         <h1>Welcome to Politeknik Brunei Marketing Day</h1>
@@ -56,6 +68,9 @@ require_once __DIR__ . '/includes/db.php';
                 </div>
                 
                 <button type="submit">Login</button>
+                <div class="forgot-password">
+                    <a href="/Website/authentication/forgot_password.php?type=graduate">Forgot Password?</a>
+                </div>
             </form>
 
             <!-- Company Form -->
@@ -78,6 +93,9 @@ require_once __DIR__ . '/includes/db.php';
                 </div>
                 
                 <button type="submit">Login</button>
+                <div class="forgot-password">
+                    <a href="/Website/authentication/forgot_password.php?type=company">Forgot Password?</a>
+                </div>
             </form>
             <p class="register-link">Don't have an account? <a href="/Website/authentication/register.php">Register here</a></p>
         </div>
@@ -101,8 +119,17 @@ require_once __DIR__ . '/includes/db.php';
         // Initialize on load
         window.onload = () => {
             // Default to graduate tab
-            const selectedTab = 'graduate'; 
+            const selectedTab = <?php echo isset($_SESSION['login_type']) ? "'" . $_SESSION['login_type'] . "'" : "'graduate'"; ?>;
             showTab(selectedTab);
+            <?php unset($_SESSION['login_type']); // Clear after using ?>
+            
+            // Auto-hide error popup after 5 seconds
+            const errorPopup = document.querySelector('.error-popup');
+            if (errorPopup) {
+                setTimeout(() => {
+                    errorPopup.remove();
+                }, 5000);
+            }
         }
     </script>
 </body>

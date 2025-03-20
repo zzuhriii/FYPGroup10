@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 13, 2025 at 10:09 AM
+-- Generation Time: Mar 20, 2025 at 03:35 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -76,8 +76,8 @@ CREATE TABLE `jobs` (
   `application_deadline` datetime DEFAULT NULL,
   `job_location` enum('Brunei Muara','Kuala Belait','Tutong','Temburong') NOT NULL,
   `job_Requirements` text NOT NULL,
-  `minimum_salary` int(11) DEFAULT NULL,
-  `maximum_salary` int(11) DEFAULT NULL,
+  `minimum_salary` int(11) NOT NULL,
+  `maximum_salary` int(11) NOT NULL,
   `is_expired` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -89,7 +89,8 @@ INSERT INTO `jobs` (`job_ID`, `job_Title`, `job_Description`, `job_Category_id`,
 (15, 'asd', 'asd', 5, 2, '2025-03-12 21:05:40', '2025-03-12 21:05:40', '2025-04-12 21:05:00', 'Brunei Muara', 'asd', 1000, 2000, 0),
 (16, 'asd', 'asd', 5, 2, '2025-03-12 21:50:58', '2025-03-12 21:50:58', '2025-04-12 21:05:00', 'Brunei Muara', 'asd', 1000, 2000, 0),
 (17, 'asd', 'asd', 5, 2, '2025-03-12 23:14:26', '2025-03-12 23:14:26', '2025-04-12 21:05:00', 'Brunei Muara', 'asd', 1000, 2000, 0),
-(18, '99', '99', 5, 2, '2025-03-13 09:52:31', '2025-03-13 09:52:31', '2025-03-21 09:52:00', 'Brunei Muara', '99', 1000, 1500, 0);
+(18, '99', '99', 5, 2, '2025-03-13 09:52:31', '2025-03-13 09:52:31', '2025-03-21 09:52:00', 'Brunei Muara', '99', 1000, 1500, 0),
+(19, 'Software Developer', 'Develop, maintain, and troubleshoot internal software systems. Collaborate with cross-functional teams to design innovative solutions.', 5, 3, '2025-03-20 21:19:35', '2025-03-20 21:19:35', '2025-04-30 17:00:00', 'Brunei Muara', 'Bachelor\'s degree in Computer Science or related field; minimum 2 years of experience in software development; proficiency in PHP, JavaScript, and MySQL.', 3000, 5000, 0);
 
 --
 -- Triggers `jobs`
@@ -151,40 +152,21 @@ INSERT INTO `job_categories` (`category_id`, `category_name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `job_category_courses`
+-- Table structure for table `job_courses`
 --
 
-CREATE TABLE `job_category_courses` (
-  `job_category_id` int(11) NOT NULL,
+CREATE TABLE `job_courses` (
+  `job_ID` int(11) NOT NULL,
   `course_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `job_category_courses`
+-- Dumping data for table `job_courses`
 --
 
-INSERT INTO `job_category_courses` (`job_category_id`, `course_id`) VALUES
-(1, 1),
-(2, 2),
-(3, 3),
-(4, 4),
-(5, 5),
-(5, 9),
-(6, 6),
-(7, 7),
-(8, 8),
-(9, 10),
-(9, 11),
-(9, 12),
-(9, 14),
-(10, 13),
-(11, 15),
-(11, 16),
-(12, 17),
-(13, 18),
-(14, 19),
-(15, 20),
-(16, 21);
+INSERT INTO `job_courses` (`job_ID`, `course_id`) VALUES
+(19, 5),
+(19, 9);
 
 --
 -- Indexes for dumped tables
@@ -210,11 +192,11 @@ ALTER TABLE `job_categories`
   ADD PRIMARY KEY (`category_id`);
 
 --
--- Indexes for table `job_category_courses`
+-- Indexes for table `job_courses`
 --
-ALTER TABLE `job_category_courses`
-  ADD PRIMARY KEY (`job_category_id`,`course_id`),
-  ADD KEY `course_id` (`course_id`);
+ALTER TABLE `job_courses`
+  ADD PRIMARY KEY (`job_ID`,`course_id`),
+  ADD KEY `fk_course` (`course_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -230,7 +212,7 @@ ALTER TABLE `courses`
 -- AUTO_INCREMENT for table `jobs`
 --
 ALTER TABLE `jobs`
-  MODIFY `job_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `job_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `job_categories`
@@ -249,11 +231,11 @@ ALTER TABLE `jobs`
   ADD CONSTRAINT `fk_job_category` FOREIGN KEY (`job_Category_id`) REFERENCES `job_categories` (`category_id`);
 
 --
--- Constraints for table `job_category_courses`
+-- Constraints for table `job_courses`
 --
-ALTER TABLE `job_category_courses`
-  ADD CONSTRAINT `job_category_courses_ibfk_1` FOREIGN KEY (`job_category_id`) REFERENCES `job_categories` (`category_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `job_category_courses_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`course_id`) ON DELETE CASCADE;
+ALTER TABLE `job_courses`
+  ADD CONSTRAINT `fk_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`course_id`),
+  ADD CONSTRAINT `fk_job` FOREIGN KEY (`job_ID`) REFERENCES `jobs` (`job_ID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

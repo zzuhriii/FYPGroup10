@@ -91,7 +91,7 @@ $sql = "CREATE TABLE IF NOT EXISTS applications (
     job_id INT NOT NULL,
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (job_id) REFERENCES jobs(id)
+    FOREIGN KEY (job_id) REFERENCES jobs(job_ID)
 )";
 if ($conn->query($sql) === FALSE) {
     die("Error creating applications table: " . $conn->error);
@@ -158,6 +158,7 @@ if ($conn->query($sql) === FALSE) {
 }
 
 //
+// Company profile table
 $sql = "CREATE TABLE IF NOT EXISTS company_profile (
     id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id INT(11) NOT NULL,
@@ -182,6 +183,9 @@ $sql = "CREATE TABLE IF NOT EXISTS company_profile (
     updated_at TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 )";
+if ($conn->query($sql) === FALSE) {
+    die("Error creating company_profile table: " . $conn->error);
+}
 
 // Job applications table
 $sql = "CREATE TABLE IF NOT EXISTS job_applications (

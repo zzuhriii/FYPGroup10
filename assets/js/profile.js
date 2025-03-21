@@ -386,4 +386,249 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Add initial remove listeners
   addRemoveListeners();
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // Existing code for tabs and other functionality
+
+    // Get the generate CV button
+    const generateCvBtn = document.getElementById("generate-cv-btn");
+    const cvPreview = document.getElementById("cv-preview");
+    const saveCvContainer = document.getElementById("save-cv-container");
+    const openCvContainer = document.getElementById("open-cv-container");
+    const openCvTabBtn = document.getElementById("open-cv-tab-btn");
+
+    // Function to generate CV content
+    function generateCvContent() {
+      // Get user data
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+
+      // Get profile picture
+      const profilePicElement = document.querySelector(".profile-pic");
+      const profilePicSrc = profilePicElement
+        ? profilePicElement.src
+        : "/Website/assets/images/placeholder.png";
+
+      // Set profile picture in CV
+      document.getElementById("cv-profile-image").src = profilePicSrc;
+
+      // Set name and contact info
+      document.getElementById("cv-name").textContent = name;
+      document.getElementById(
+        "cv-contact"
+      ).textContent = `Email: ${email} | Phone: ${phone}`;
+
+      // Generate education section
+      const educationEntries = document.querySelectorAll(".education-entry");
+      let educationHtml = "";
+
+      educationEntries.forEach((entry) => {
+        const level = entry.querySelector(
+          '[name^="education"][name$="[education_level]"]'
+        ).value;
+        const institution = entry.querySelector(
+          '[name^="education"][name$="[institution]"]'
+        ).value;
+        const field = entry.querySelector(
+          '[name^="education"][name$="[field_of_study]"]'
+        ).value;
+        const year = entry.querySelector(
+          '[name^="education"][name$="[graduation_year]"]'
+        ).value;
+
+        if (level && institution && field && year) {
+          educationHtml += `<div class="cv-item">
+                    <h4>${level} in ${field}</h4>
+                    <p>${institution}, ${year}</p>
+                </div>`;
+        }
+      });
+
+      document.getElementById("cv-education").innerHTML =
+        educationHtml || "<p>No education information provided.</p>";
+
+      // Generate work experience section
+      const workEntries = document.querySelectorAll(".work-entry");
+      let workHtml = "";
+
+      workEntries.forEach((entry) => {
+        const company = entry.querySelector(
+          '[name^="work"][name$="[company]"]'
+        ).value;
+        const position = entry.querySelector(
+          '[name^="work"][name$="[position]"]'
+        ).value;
+        const startDate = entry.querySelector(
+          '[name^="work"][name$="[start_date]"]'
+        ).value;
+        const endDateInput = entry.querySelector(
+          '[name^="work"][name$="[end_date]"]'
+        );
+        const endDate = endDateInput.value || "Present";
+        const description = entry.querySelector(
+          '[name^="work"][name$="[description]"]'
+        ).value;
+
+        if (company && position && startDate) {
+          workHtml += `<div class="cv-item">
+                    <h4>${position} at ${company}</h4>
+                    <p>${formatDate(startDate)} - ${
+            endDate === "Present" ? "Present" : formatDate(endDate)
+          }</p>
+                    <p>${description}</p>
+                </div>`;
+        }
+      });
+
+      document.getElementById("cv-work").innerHTML =
+        workHtml || "<p>No work experience provided.</p>";
+
+      // Generate achievements section
+      const achievementEntries =
+        document.querySelectorAll(".achievement-entry");
+      let achievementsHtml = "";
+
+      achievementEntries.forEach((entry) => {
+        const title = entry.querySelector(
+          '[name^="achievements"][name$="[title]"]'
+        ).value;
+        const description = entry.querySelector(
+          '[name^="achievements"][name$="[description]"]'
+        ).value;
+        const year = entry.querySelector(
+          '[name^="achievements"][name$="[year]"]'
+        ).value;
+
+        if (title && description && year) {
+          achievementsHtml += `<div class="cv-item">
+                    <h4>${title} (${year})</h4>
+                    <p>${description}</p>
+                </div>`;
+        }
+      });
+
+      document.getElementById("cv-achievements").innerHTML =
+        achievementsHtml || "<p>No achievements provided.</p>";
+
+      return {
+        name,
+        email,
+        phone,
+        profilePic: profilePicSrc,
+        education: educationHtml,
+        work: workHtml,
+        achievements: achievementsHtml,
+      };
+    }
+
+    // Format date for better display
+    function formatDate(dateString) {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+      });
+    }
+
+    // Event listener for generate CV button
+    if (generateCvBtn) {
+      generateCvBtn.addEventListener("click", function () {
+        generateCvContent();
+        cvPreview.style.display = "block";
+        saveCvContainer.style.display = "block";
+        openCvContainer.style.display = "block";
+      });
+    }
+
+    // Event listener for opening CV in new tab
+    if (openCvTabBtn) {
+      openCvTabBtn.addEventListener("click", function () {
+        const cvData = generateCvContent();
+
+        // Create HTML content for the new tab
+        const cvHtml = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>CV - ${cvData.name}</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .cv-header {
+                        text-align: center;
+                        margin-bottom: 30px;
+                        border-bottom: 2px solid #333;
+                        padding-bottom: 10px;
+                    }
+                    .cv-section {
+                        margin-bottom: 25px;
+                    }
+                    .cv-section h3 {
+                        border-bottom: 1px solid #ddd;
+                        padding-bottom: 5px;
+                    }
+                    .cv-item {
+                        margin-bottom: 15px;
+                    }
+                    .cv-item h4 {
+                        margin-bottom: 5px;
+                    }
+                    .cv-item p {
+                        margin: 5px 0;
+                    }
+                    @media print {
+                        body {
+                            padding: 0;
+                        }
+                        button {
+                            display: none;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="cv-header">
+                    <h1>${cvData.name}</h1>
+                    <p>Email: ${cvData.email} | Phone: ${cvData.phone}</p>
+                </div>
+                
+                <div class="cv-section">
+                    <h3>Education</h3>
+                    ${
+                      cvData.education ||
+                      "<p>No education information provided.</p>"
+                    }
+                </div>
+                
+                <div class="cv-section">
+                    <h3>Work Experience</h3>
+                    ${cvData.work || "<p>No work experience provided.</p>"}
+                </div>
+                
+                <div class="cv-section">
+                    <h3>Achievements</h3>
+                    ${cvData.achievements || "<p>No achievements provided.</p>"}
+                </div>
+                
+                <button onclick="window.print()">Print CV</button>
+            </body>
+            </html>
+            `;
+
+        // Open a new tab and write the CV HTML
+        const newTab = window.open("", "_blank");
+        newTab.document.write(cvHtml);
+        newTab.document.close();
+      });
+    }
+  });
 });

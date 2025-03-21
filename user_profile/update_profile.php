@@ -16,10 +16,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user_id = $_SESSION['user_id'];  
     
     // Process personal details
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $phone = $_POST['phone'];
-    $ic_number = $_POST['ic_number'];
+    // Update user information
+    $name = mysqli_real_escape_string($conn, $_POST['name']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+    $ic_number = mysqli_real_escape_string($conn, $_POST['ic_number']);
+    $programme = mysqli_real_escape_string($conn, $_POST['programme']);
+    
+    // Update user profile in the database
+    $update_sql = "UPDATE users SET 
+                   name = '$name', 
+                   email = '$email', 
+                   phone = '$phone', 
+                   ic_number = '$ic_number',
+                   programme = '$programme'";
     
     // Handle profile picture upload
     $profile_pic_name = null;
@@ -197,9 +207,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     
     // Update user's personal details
-    $sql = "UPDATE users SET name = ?, email = ?, phone = ?, ic_number = ?";
-    $params = [$name, $email, $phone, $ic_number];
-    $types = "ssss";
+    $sql = "UPDATE users SET name = ?, email = ?, phone = ?, ic_number = ?, programme = ?";
+    $params = [$name, $email, $phone, $ic_number, $programme];
+    $types = "sssss";
     
     if ($profile_pic_name) {
         $sql .= ", profile_pic = ?";

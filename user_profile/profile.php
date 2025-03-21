@@ -13,7 +13,7 @@ require_once '../includes/db.php';
 
 // Get user data
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT u.name, u.email, u.phone, u.ic_number, u.profile_pic, u.cv, 
+$sql = "SELECT u.name, u.email, u.phone, u.ic_number, u.profile_pic, u.cv, u.programme,
                e.education_level, e.institution, e.field_of_study, e.graduation_year,
                a.title as achievement_title, a.description as achievement_description, a.year as achievement_year,
                w.company, w.position, w.start_date, w.end_date, w.description as work_description
@@ -40,7 +40,8 @@ while ($row = $result->fetch_assoc()) {
             'phone' => $row['phone'],
             'ic_number' => $row['ic_number'],
             'profile_pic' => $row['profile_pic'],
-            'cv' => $row['cv']
+            'cv' => $row['cv'],
+            'programme' => $row['programme']
         ];
     }
     
@@ -141,6 +142,46 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
                 <div class="input-field">
                     <label for="ic_number">IC Number:</label>
                     <input type="text" id="ic_number" name="ic_number" value="<?php echo htmlspecialchars($user['ic_number']); ?>" required>
+                </div>
+
+                <div class="input-field">
+                    <label for="programme">Programme:</label>
+                    <select id="programme" name="programme" required>
+                        <option value="">Select Programme</option>
+                        <!-- School of Business -->
+                        <optgroup label="School of Business">
+                            <option value="DBAF" <?php echo (isset($user['programme']) && $user['programme'] == 'DBAF') ? 'selected' : ''; ?>>DIPLOMA IN BUSINESS ACCOUNTING & FINANCE</option>
+                            <option value="DEMS" <?php echo (isset($user['programme']) && $user['programme'] == 'DEMS') ? 'selected' : ''; ?>>DIPLOMA IN ENTREPRENEURSHIP & MARKETING STRATEGIES</option>
+                            <option value="DHCM" <?php echo (isset($user['programme']) && $user['programme'] == 'DHCM') ? 'selected' : ''; ?>>DIPLOMA IN HUMAN CAPITAL MANAGEMENT</option>
+                            <option value="DAHMO" <?php echo (isset($user['programme']) && $user['programme'] == 'DAHMO') ? 'selected' : ''; ?>>DIPLOMA APPRENTICESHIP IN HOSPITALITY MANAGEMENT AND OPERATIONS</option>
+                        </optgroup>
+                        <!-- School of Information and Communication Technology -->
+                        <optgroup label="School of Information and Communication Technology">
+                            <option value="DAD" <?php echo (isset($user['programme']) && $user['programme'] == 'DAD') ? 'selected' : ''; ?>>DIPLOMA IN APPLICATIONS DEVELOPMENT</option>
+                            <option value="DCN" <?php echo (isset($user['programme']) && $user['programme'] == 'DCN') ? 'selected' : ''; ?>>DIPLOMA IN CLOUD AND NETWORKING</option>
+                            <option value="DDA" <?php echo (isset($user['programme']) && $user['programme'] == 'DDA') ? 'selected' : ''; ?>>DIPLOMA IN DATA ANALYTICS</option>
+                            <option value="DDAM" <?php echo (isset($user['programme']) && $user['programme'] == 'DDAM') ? 'selected' : ''; ?>>DIGITAL ARTS AND MEDIA</option>
+                            <option value="DWT" <?php echo (isset($user['programme']) && $user['programme'] == 'DWT') ? 'selected' : ''; ?>>DIPLOMA IN WEB TECHNOLOGY</option>
+                        </optgroup>
+                        <!-- School of Health Sciences -->
+                        <optgroup label="School of Health Sciences">
+                            <option value="DHSN" <?php echo (isset($user['programme']) && $user['programme'] == 'DHSN') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (NURSING)</option>
+                            <option value="DHSM" <?php echo (isset($user['programme']) && $user['programme'] == 'DHSM') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (MIDWIFERY)</option>
+                            <option value="DHSP" <?php echo (isset($user['programme']) && $user['programme'] == 'DHSP') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (PARAMEDIC)</option>
+                            <option value="DHSCT" <?php echo (isset($user['programme']) && $user['programme'] == 'DHSCT') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (CARDIOVASCULAR TECHNOLOGY)</option>
+                            <option value="DHSPH" <?php echo (isset($user['programme']) && $user['programme'] == 'DHSPH') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (PUBLIC HEALTH)</option>
+                        </optgroup>
+                        <!-- School of Architecture and Engineering -->
+                        <optgroup label="School of Architecture and Engineering">
+                            <option value="DA" <?php echo (isset($user['programme']) && $user['programme'] == 'DA') ? 'selected' : ''; ?>>DIPLOMA IN ARCHITECTURE</option>
+                            <option value="DID" <?php echo (isset($user['programme']) && $user['programme'] == 'DID') ? 'selected' : ''; ?>>DIPLOMA IN INTERIOR DESIGN</option>
+                            <option value="DCE" <?php echo (isset($user['programme']) && $user['programme'] == 'DCE') ? 'selected' : ''; ?>>DIPLOMA IN CIVIL ENGINEERING</option>
+                            <option value="DEE" <?php echo (isset($user['programme']) && $user['programme'] == 'DEE') ? 'selected' : ''; ?>>DIPLOMA IN ELECTRICAL ENGINEERING</option>
+                            <option value="DECE" <?php echo (isset($user['programme']) && $user['programme'] == 'DECE') ? 'selected' : ''; ?>>DIPLOMA IN ELECTRONIC AND COMMUNICATION ENGINEERING</option>
+                            <option value="DME" <?php echo (isset($user['programme']) && $user['programme'] == 'DME') ? 'selected' : ''; ?>>DIPLOMA IN MECHANICAL ENGINEERING</option>
+                            <option value="DPE" <?php echo (isset($user['programme']) && $user['programme'] == 'DPE') ? 'selected' : ''; ?>>DIPLOMA IN PETROLEUM ENGINEERING</option>
+                        </optgroup>
+                    </select>
                 </div>
 
                 <div class="input-field">

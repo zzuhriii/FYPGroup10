@@ -40,6 +40,18 @@ if ($conn->query($sql) === FALSE) {
     die("Error creating users table: " . $conn->error);
 }
 
+// Users table update
+$sql = "ALTER TABLE users 
+    MODIFY user_type enum('graduate','company','admin') NOT NULL,
+    ADD COLUMN IF NOT EXISTS phone varchar(15) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS profile_pic varchar(255) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS cv varchar(255) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS ic_number varchar(20) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS programme varchar(50) DEFAULT NULL";
+if ($conn->query($sql) === FALSE) {
+    die("Error updating users table: " . $conn->error);
+}
+
 // CV table for storing graduate CVs
 $sql = "CREATE TABLE IF NOT EXISTS cvs (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -137,6 +149,73 @@ if ($conn->query($sql) === FALSE) {
 }
 
 //
+$sql = "CREATE TABLE IF NOT EXISTS company_profile (
+    id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(11) NOT NULL,
+    company_name VARCHAR(255) DEFAULT NULL,
+    tagline VARCHAR(255) DEFAULT NULL,
+    location VARCHAR(255) DEFAULT NULL,
+    contact_info TEXT DEFAULT NULL,
+    founding_date VARCHAR(100) DEFAULT NULL,
+    founders TEXT DEFAULT NULL,
+    milestones TEXT DEFAULT NULL,
+    mission TEXT DEFAULT NULL,
+    vision TEXT DEFAULT NULL,
+    products TEXT DEFAULT NULL,
+    usp TEXT DEFAULT NULL,
+    awards TEXT DEFAULT NULL,
+    testimonials TEXT DEFAULT NULL,
+    about_us TEXT DEFAULT NULL,
+    logo MEDIUMBLOB DEFAULT NULL,
+    office_photo MEDIUMBLOB DEFAULT NULL,
+    infographic MEDIUMBLOB DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+    updated_at TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+
+// Job applications table
+$sql = "CREATE TABLE IF NOT EXISTS job_applications (
+    id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    job_id int(11) NOT NULL,
+    user_id int(11) NOT NULL,
+    cover_letter text DEFAULT NULL,
+    application_date timestamp NOT NULL DEFAULT current_timestamp(),
+    status enum('pending','accepted','declined') DEFAULT 'pending',
+    feedback text DEFAULT NULL,
+    decline_reason text DEFAULT NULL,
+    FOREIGN KEY (job_id) REFERENCES jobs(job_ID) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+if ($conn->query($sql) === FALSE) {
+    die("Error creating job_applications table: " . $conn->error);
+}
+
+// Add salary_estimation column to jobs table if it doesn't exist
+$sql = "ALTER TABLE jobs ADD COLUMN IF NOT EXISTS salary_estimation VARCHAR(100) DEFAULT NULL";
+if ($conn->query($sql) === FALSE) {
+    // Don't die on error, just log it
+    error_log("Error adding salary_estimation column: " . $conn->error);
+}
+
+// Job applications table
+$sql = "CREATE TABLE IF NOT EXISTS job_applications (
+    id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    job_id int(11) NOT NULL,
+    user_id int(11) NOT NULL,
+    cover_letter text DEFAULT NULL,
+    application_date timestamp NOT NULL DEFAULT current_timestamp(),
+    status enum('pending','accepted','declined') DEFAULT 'pending',
+    feedback text DEFAULT NULL,
+    decline_reason text DEFAULT NULL,
+    FOREIGN KEY (job_id) REFERENCES jobs(job_ID) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+if ($conn->query($sql) === FALSE) {
+    die("Error creating job_applications table: " . $conn->error);
+}
+
+
 ?>
 
 

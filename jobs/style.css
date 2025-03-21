@@ -1,0 +1,218 @@
+.jobs-containerold {
+    width: 900px;
+    background-color: #fff;
+    width: 100%;
+	margin:auto;
+	font-size: 1em;
+}
+
+.jobs-boxold {
+    padding: 30px;
+    width: 100%;
+}
+:root {
+    /* Politeknik Brunei Color Scheme */
+    --pb-yellow: #FFD700; /* Yellow */
+    --pb-blue: #006F9C; /* Blue - Politeknik Brunei primary color */
+    --pb-dark-blue: #0A1C4B; /* Dark Blue - Politeknik Brunei dark shade */
+    --pb-light-yellow: #FFF3B0; /* Light yellow */
+    --pb-accent: #1A2D5A; /* Accent color - Dark Blue */
+    --pb-light: #F5F5F5;
+    --pb-dark: #333333;
+}
+.details-row {
+    display: flex;
+    justify-content: space-between; /* Space between left and right content */
+    margin-top: 10px; /* Add space above the details row */
+}
+.deadline {
+    text-align: left; /* Align deadline text to the left */
+}
+
+.salary {
+    text-align: right; /* Align salary text to the right */
+}
+.jobs-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columns */
+    gap: 20px; /* Space between tiles */
+    padding: 20px;
+}
+
+.job-link {
+    text-decoration: none; /* Remove underline */
+    color: inherit; /* Inherit text color */
+    display: block; /* Make the link fill the tile */
+}
+
+.jobs-box {
+    position: relative; /* Required for gradient overlay */
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 150px; /* Fixed height */
+    overflow: hidden; /* Hide any content that exceeds the height */
+	border-top: 5px solid var(--pb-blue); /* Yellow top border */
+    border-bottom: 5px solid var(--pb-yellow);
+}
+
+.jobs-box::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px; /* Height of the gradient fade */
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+}
+
+.jobs-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+h3, p {
+    margin: 0; /* Remove default margins */
+}
+
+h3 {
+    font-size: 1.1em; /* Slightly smaller title font size */
+    margin-bottom: 10px; /* Space between title and description */
+}
+
+p {
+    font-size: 0.9em; /* Smaller description font size */
+    line-height: 1.4; /* Adjust line height for better readability */
+    color: #666;
+    margin: 0; /* Remove default margins */
+}
+
+input {
+    padding: 0px 20px;
+    width: 300px;
+    height: 40px;
+    font-size: 22px;
+}
+
+button {
+    width: 100px;
+    height: 44px;
+    font-size: 22px;
+}
+
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.header-container {
+	width: 100%;
+	max-width: 1200px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 20px;
+	padding: 15px;
+	background-color: rgba(255, 255, 255, 0.9);
+	border-radius: 10px;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.header-container img {
+	max-width: 120px;
+	margin-right: 20px;
+}
+
+.header-container h1 {
+	font-size: 1.8rem;
+	text-align: center;
+	color: var(--pb-blue);
+	font-weight: bold;
+}
+nav {
+	background-color: var(--pb-blue);
+	padding: 1rem;
+	text-align: center;
+}
+nav a {
+	color: white;
+	text-decoration: none;
+	margin: 0 1rem;
+}
+main {
+	padding: 2rem;
+	text-align: center;
+}
+.footer {
+	margin-top: 30px;
+	text-align: center;
+	font-size: 0.9rem;
+	color: var(--pb-light-yellow);
+}
+.container {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+.cta {
+	background-color: #007bff;
+	color: white;
+	padding: 1rem 2rem;
+	display: inline-block;
+	text-decoration: none;
+	border-radius: 4px;
+}
+.search-container {
+	margin: 2rem 0;
+	text-align: center;
+}
+.search-container input[type="text"] {
+	padding: 0.5rem;
+	width: 300px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+.search-container button {
+	padding: 0.5rem 1rem;
+	background-color: var(--pb-yellow);
+	color: black;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.jobs-boxold {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+.jobs-boxold h3 {
+    margin-top: 0;
+}
+.no-results {
+    color: red;
+    text-align: center;
+}
+
+.apply-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--pb-light-yellow);
+    color: black;
+    border: 2px solid black;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+.apply-button:hover {
+    background-color: var(--pb-yellow);
+    border-color: #003d80;
+}

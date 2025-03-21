@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($login_type == 'graduate') {
                 header("Location: /Website/main/graduate_dashboard.php");
             } else {
-                header("Location: /Website/main/company_dashboard.php");
+                header("Location: /Website/company_profile/company_dashboard.php");
             }
             exit();
         } else {

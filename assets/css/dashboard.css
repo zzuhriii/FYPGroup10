@@ -217,3 +217,93 @@ main {
     text-align: center;
   }
 }
+
+
+/* Dashboard Cards */
+.dashboard-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.dashboard-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    flex: 1 1 300px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card h3 {
+    color: #2c3e50;
+    margin-top: 0;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.dashboard-card p {
+    color: #7f8c8d;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.dashboard-button {
+    display: inline-block;
+    background-color: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.dashboard-button:hover {
+    background-color: #2980b9;
+}
+
+.dashboard-button.primary {
+    background-color: #0056b3;
+}
+
+.dashboard-button.primary:hover {
+    background-color: #003d82;
+}
+
+.dashboard-button.secondary {
+    background-color: #27ae60;
+}
+
+.dashboard-button.secondary:hover {
+    background-color: #219955;
+}
+
+.button-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+/* Animation for staggered appearance */
+.staggered-animation {
+    opacity: 0;
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.dashboard-card:nth-child(1) .staggered-animation {
+    animation-delay: 0.2s;
+}
+
+.dashboard-card:nth-child(2) .staggered-animation {
+    animation-delay: 0.4s;
+}

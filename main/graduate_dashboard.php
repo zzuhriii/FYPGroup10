@@ -35,7 +35,7 @@ $profile_pic = !empty($user['profile_pic']) ? "/Website/user_profile/uploads/pro
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 <header>
@@ -66,17 +66,22 @@ $profile_pic = !empty($user['profile_pic']) ? "/Website/user_profile/uploads/pro
 </header>
 
     <main>
-       
-
-
-            <section class="dashboard-section graduate-dashboard">
-                <h2>Your Graduate Dashboard</h2>
-                <p>Discover job opportunities tailored to your skills and qualifications. Take the first step towards your dream career today!</p>
-                <div class="button-container">
-                    <a href="/Website/search_jobs/graduates_homepage.php" class="button staggered-animation">View Available Jobs</a>
-                    
+        <section class="dashboard-section graduate-dashboard">
+            <h2>Your Graduate Dashboard</h2>
+            <p>Discover job opportunities tailored to your skills and qualifications. Take the first step towards your dream career today!</p>
+            <div class="dashboard-cards">
+                <div class="dashboard-card">
+                    <h3>Job Opportunities</h3>
+                    <p>Explore job listings tailored to your qualifications and interests.</p>
+                    <div class="button-container">
+                        <a href="/Website/jobs/graduates_homepage.php" class="dashboard-button primary">
+                            <i class="fas fa-briefcase"></i> View Available Jobs
+                        </a>
+                        
+                    </div>
                 </div>
-            </section>
+            </div>
+        </section>
     </main>
 
     <footer class="footer">

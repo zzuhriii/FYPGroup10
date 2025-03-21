@@ -24,6 +24,40 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Check if company_profile table exists, if not create it
+$check_table_sql = "SHOW TABLES LIKE 'company_profile'";
+$table_result = $conn->query($check_table_sql);
+if ($table_result->num_rows == 0) {
+    // Table doesn't exist, create it
+    $create_table_sql = "CREATE TABLE IF NOT EXISTS company_profile (
+        id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        user_id INT(11) NOT NULL,
+        company_name VARCHAR(255) DEFAULT NULL,
+        tagline VARCHAR(255) DEFAULT NULL,
+        location VARCHAR(255) DEFAULT NULL,
+        contact_info TEXT DEFAULT NULL,
+        founding_date VARCHAR(100) DEFAULT NULL,
+        founders TEXT DEFAULT NULL,
+        milestones TEXT DEFAULT NULL,
+        mission TEXT DEFAULT NULL,
+        vision TEXT DEFAULT NULL,
+        products TEXT DEFAULT NULL,
+        usp TEXT DEFAULT NULL,
+        awards TEXT DEFAULT NULL,
+        testimonials TEXT DEFAULT NULL,
+        about_us TEXT DEFAULT NULL,
+        logo MEDIUMBLOB DEFAULT NULL,
+        office_photo MEDIUMBLOB DEFAULT NULL,
+        infographic MEDIUMBLOB DEFAULT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+        updated_at TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    if ($conn->query($create_table_sql) === FALSE) {
+        die("Error creating company_profile table: " . $conn->error);
+    }
+}
+
 // Get company information
 $company_sql = "SELECT * FROM users WHERE id = ? AND user_type = 'company'";
 $company_stmt = $conn->prepare($company_sql);

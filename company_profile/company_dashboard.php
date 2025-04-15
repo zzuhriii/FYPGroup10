@@ -459,6 +459,32 @@ $conn->close();
             <a href="/Website/jobs/browse_jobs.php"><i class="fas fa-briefcase"></i> Jobs</a>
             <a href="/Website/about.php"><i class="fas fa-info-circle"></i> About</a>
             <a href="/Website/contact.php"><i class="fas fa-envelope"></i> Contact</a>
+            <a href="/Website/company_profile/location_map.php"><i class="fas fa-map-marker-alt"></i> Locations</a>
+            
+            <!-- Dropdown Menu -->
+            <div class="dropdown" style="display: inline-block; position: relative;">
+                <a href="#" onclick="toggleDropdown(event)" class="dashboard-link">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard <i class="fas fa-caret-down" style="margin-left: 5px;"></i>
+                </a>
+                <div id="dashboardDropdown" class="dropdown-content" style="display: none; position: absolute; background-color: white; min-width: 200px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 1; border-radius: 4px; top: 100%; left: 0; margin-top: 5px;">
+                    <a href="/Website/company_profile/company_dashboard.php" style="color: #333; padding: 12px 16px; text-decoration: none; display: block; border-bottom: 1px solid #eee;">
+                        <i class="fas fa-home"></i> Dashboard Home
+                    </a>
+                    <a href="/Website/jobs/company/manage_jobs.php" style="color: #333; padding: 12px 16px; text-decoration: none; display: block; border-bottom: 1px solid #eee;">
+                        <i class="fas fa-tasks"></i> Manage Jobs
+                    </a>
+                    <a href="/Website/jobs/company/post_job.php" style="color: #333; padding: 12px 16px; text-decoration: none; display: block; border-bottom: 1px solid #eee;">
+                        <i class="fas fa-plus-circle"></i> Post New Job
+                    </a>
+                    <a href="edit_profile.php" style="color: #333; padding: 12px 16px; text-decoration: none; display: block; border-bottom: 1px solid #eee;">
+                        <i class="fas fa-user-edit"></i> Edit Profile
+                    </a>
+                    <a href="manage_location.php" style="color: #333; padding: 12px 16px; text-decoration: none; display: block;">
+                        <i class="fas fa-map-marker-alt"></i> Manage Location
+                    </a>
+                </div>
+            </div>
+            
             <a href="/Website/authentication/logout.php" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </div>
@@ -496,145 +522,180 @@ $conn->close();
                         <i class="fas fa-building"></i>
                     <?php endif; ?>
                 </div>
-                                <div class="company-details">
-                                    <h1><?php echo htmlspecialchars($company['name'] ?? 'Company Name'); ?></h1>
-                                    <p><?php echo htmlspecialchars($profile['tagline'] ?? 'Your company tagline'); ?></p>
-                                </div>
-                            </div>
-                            <div class="dashboard-actions">
-                                <a href="edit_profile.php" class="dashboard-btn primary-btn"><i class="fas fa-edit"></i> Edit Profile</a>
-                                <a href="CompanyProfile.php" class="dashboard-btn secondary-btn"><i class="fas fa-eye"></i> View Public Profile</a>
-                            </div>
-                        </div>
-                        
-                        <div class="dashboard-stats">
-                            <div class="stat-card">
-                                <i class="fas fa-briefcase"></i>
-                                <h2><?php echo $job_count; ?></h2>
-                                <p>Jobs Posted</p>
-                            </div>
-                            <div class="stat-card">
-                                <i class="fas fa-file-alt"></i>
-                                <h2><?php echo $application_count; ?></h2>
-                                <p>Applications Received</p>
-                            </div>
-                            <div class="stat-card">
-                                <i class="fas fa-users"></i>
-                                <h2>0</h2>
-                                <p>Positions Filled</p>
-                            </div>
-                        </div>
-                        
-                        <div class="dashboard-sections">
-                            <div class="main-content">
-                                <div class="section">
-                                    <h3 class="section-title">
-                                        Recent Applications
-                                        <a href="/Website/jobs/company/view_applications.php">View All</a>
-                                    </h3>
-                                    
-                                    <?php if ($recent_result->num_rows > 0): ?>
-                                        <?php while ($app = $recent_result->fetch_assoc()): ?>
-                                            <div class="application-item">
-                                                <div class="application-header">
-                                                    <div class="application-title"><?php echo htmlspecialchars($app['job_Title']); ?></div>
-                                                    <div class="application-date"><?php echo date('M d, Y', strtotime($app['application_date'])); ?></div>
-                                                </div>
-                                                <div class="application-meta">
-                                                    <div class="applicant-name"><?php echo htmlspecialchars($app['applicant_name']); ?></div>
-                                                    <span class="application-status status-<?php echo strtolower($app['status']); ?>">
-                                                        <?php echo ucfirst($app['status']); ?>
-                                                    </span>
-                                                </div>
-                                                <div style="margin-top: 10px;">
-                                                    <a href="/Website/jobs/company/view_application.php?id=<?php echo $app['id']; ?>" class="dashboard-btn secondary-btn" style="font-size: 12px; padding: 5px 10px;">View Details</a>
-                                                </div>
-                                            </div>
-                                        <?php endwhile; ?>
-                                    <?php else: ?>
-                                        <p>No applications received yet.</p>
-                                    <?php endif; ?>
-                                </div>
-                                
-                                <div class="section">
-                                    <h3 class="section-title">
-                                        Your Jobs
-                                        <a href="/Website/jobs/company/manage_jobs.php">Manage Jobs</a>
-                                    </h3>
-                                    <a href="/Website/jobs/company/post_job.php" class="dashboard-btn primary-btn" style="margin-bottom: 20px;">
-                                        <i class="fas fa-plus"></i> Post New Job
-                                    </a>
-                                    
-                                    <!-- Job listings would go here -->
-                                    <p>Manage your job listings and create new opportunities for graduates.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="sidebar">
-                                <div class="section">
-                                    <h3 class="section-title">Quick Links</h3>
-                                    <ul class="quick-links">
-                                        <li>
-                                            <a href="/Website/jobs/company/post_job.php">
-                                                <i class="fas fa-plus-circle"></i> Post a New Job
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="/Website/jobs/company/manage_jobs.php">
-                                                <i class="fas fa-tasks"></i> Manage Jobs
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="edit_profile.php">
-                                                <i class="fas fa-user-edit"></i> Edit Company Profile
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="/Website/logout.php">
-                                                <i class="fas fa-sign-out-alt"></i> Logout
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="section">
-                                    <h3 class="section-title">Profile Completion</h3>
-                                    <?php
-                                    // Calculate profile completion percentage
-                                    $total_fields = 10; // Total number of profile fields
-                                    $filled_fields = 0;
-                                    
-                                    if (!empty($profile['company_name'])) $filled_fields++;
-                                    if (!empty($profile['tagline'])) $filled_fields++;
-                                    if (!empty($profile['location'])) $filled_fields++;
-                                    if (!empty($profile['contact_info'])) $filled_fields++;
-                                    if (!empty($profile['founding_date'])) $filled_fields++;
-                                    if (!empty($profile['mission'])) $filled_fields++;
-                                    if (!empty($profile['vision'])) $filled_fields++;
-                                    if (!empty($profile['products'])) $filled_fields++;
-                                    if (!empty($profile['about_us'])) $filled_fields++;
-                                    if (!empty($profile['logo'])) $filled_fields++;
-                                    
-                                    $completion_percentage = ($filled_fields / $total_fields) * 100;
-                                    ?>
-                                    
-                                    <div class="profile-completion">
-                                        <p><?php echo round($completion_percentage); ?>% Complete</p>
-                                        <div class="progress-bar">
-                                            <div class="progress" style="width: <?php echo $completion_percentage; ?>%;"></div>
-                                        </div>
-                                        <?php if ($completion_percentage < 100): ?>
-                                            <p style="margin-top: 10px; font-size: 13px;">Complete your profile to attract more applicants!</p>
-                                            <a href="edit_profile.php" class="dashboard-btn primary-btn" style="margin-top: 10px; width: 100%; text-align: center;">
-                                                Complete Profile
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="company-details">
+                    <h1><?php echo htmlspecialchars($company['name'] ?? 'Company Name'); ?></h1>
+                    <p><?php echo htmlspecialchars($profile['tagline'] ?? 'Your company tagline'); ?></p>
+                </div>
+            </div>
+            <div class="dashboard-actions">
+                <a href="edit_profile.php" class="dashboard-btn primary-btn"><i class="fas fa-edit"></i> Edit Profile</a>
+                <a href="companyprofile.php?id=<?php echo $user_id; ?>" class="dashboard-btn secondary-btn"><i class="fas fa-eye"></i> View Public Profile</a>
+            </div>
+        </div>
+        
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <i class="fas fa-briefcase"></i>
+                <h2><?php echo $job_count; ?></h2>
+                <p>Jobs Posted</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-file-alt"></i>
+                <h2><?php echo $application_count; ?></h2>
+                <p>Applications Received</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h2>0</h2>
+                <p>Positions Filled</p>
+            </div>
+        </div>
+        
+        <!-- Add a welcome message and summary section -->
+        <div class="section welcome-section" id="welcomeMessage" style="margin-bottom: 20px; position: relative;">
+            <button onclick="dismissWelcome()" class="dismiss-btn" style="position: absolute; top: 10px; right: 10px; background: none; border: none; cursor: pointer; font-size: 16px; color: #999;">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 class="section-title">Welcome, <?php echo htmlspecialchars($company['name'] ?? 'Company'); ?>!</h3>
+            <p>This is your company dashboard where you can manage your profile, job postings, and review applications from potential candidates.</p>
+            
+            <?php if ($job_count == 0): ?>
+            <div class="alert" style="background-color: #d1ecf1; color: #0c5460; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                <i class="fas fa-info-circle"></i> You haven't posted any jobs yet. <a href="/Website/jobs/company/post_job.php" style="color: #0c5460; text-decoration: underline;">Post your first job</a> to start receiving applications!
+            </div>
+            <?php endif; ?>
+        </div>
+
+        <script>
+            // Check if welcome message was previously dismissed
+            document.addEventListener('DOMContentLoaded', function() {
+                if (localStorage.getItem('welcomeDismissed') === 'true') {
+                    document.getElementById('welcomeMessage').style.display = 'none';
+                }
+            });
+            
+            // Function to dismiss welcome message
+            function dismissWelcome() {
+                document.getElementById('welcomeMessage').style.display = 'none';
+                localStorage.setItem('welcomeDismissed', 'true');
+            }
+        </script>
+        
+        <div class="dashboard-sections">
+            <div class="main-content">
+                <div class="section">
+                    <h3 class="section-title">
+                        Recent Applications
+                        <a href="/Website/jobs/company/view_applications.php">View All</a>
+                    </h3>
                     
-                    <?php include $_SERVER['DOCUMENT_ROOT'] . '/Website/footer.php'; ?>
+                    <?php if ($recent_result->num_rows > 0): ?>
+                        <?php while ($app = $recent_result->fetch_assoc()): ?>
+                            <div class="application-item">
+                                <div class="application-header">
+                                    <div class="application-title"><?php echo htmlspecialchars($app['job_Title']); ?></div>
+                                    <div class="application-date"><?php echo date('M d, Y', strtotime($app['application_date'])); ?></div>
+                                </div>
+                                <div class="application-meta">
+                                    <div class="applicant-name"><?php echo htmlspecialchars($app['applicant_name']); ?></div>
+                                    <span class="application-status status-<?php echo strtolower($app['status']); ?>">
+                                        <?php echo ucfirst($app['status']); ?>
+                                    </span>
+                                </div>
+                                <div style="margin-top: 10px;">
+                                    <a href="/Website/jobs/company/view_application.php?id=<?php echo $app['id']; ?>" class="dashboard-btn secondary-btn" style="font-size: 12px; padding: 5px 10px;">View Details</a>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <p>No applications received yet.</p>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title">
+                        Your Jobs
+                        <a href="/Website/jobs/company/manage_jobs.php">Manage Jobs</a>
+                    </h3>
+                    <a href="/Website/jobs/company/post_job.php" class="dashboard-btn primary-btn" style="margin-bottom: 20px;">
+                        <i class="fas fa-plus"></i> Post New Job
+                    </a>
+                    
+                    <!-- Job listings would go here -->
+                    <p>Manage your job listings and create new opportunities for graduates.</p>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="section">
+                    <h3 class="section-title">Quick Links</h3>
+                    <ul class="quick-links">
+                        <li>
+                            <a href="/Website/jobs/company/post_job.php">
+                                <i class="fas fa-plus-circle"></i> Post a New Job
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/Website/jobs/company/manage_jobs.php">
+                                <i class="fas fa-tasks"></i> Manage Jobs
+                            </a>
+                        </li>
+                        <li>
+                            <a href="edit_profile.php">
+                                <i class="fas fa-user-edit"></i> Edit Company Profile
+                            </a>
+                        </li>
+                        <li>
+                            <a href="manage_location.php">
+                                <i class="fas fa-map-marker-alt"></i> Manage Location
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/Website/logout.php">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <h3 class="section-title">Profile Completion</h3>
+                    <?php
+                    // Calculate profile completion percentage
+                    $total_fields = 10; // Total number of profile fields
+                    $filled_fields = 0;
+                    
+                    if (!empty($profile['company_name'])) $filled_fields++;
+                    if (!empty($profile['tagline'])) $filled_fields++;
+                    if (!empty($profile['location'])) $filled_fields++;
+                    if (!empty($profile['contact_info'])) $filled_fields++;
+                    if (!empty($profile['founding_date'])) $filled_fields++;
+                    if (!empty($profile['mission'])) $filled_fields++;
+                    if (!empty($profile['vision'])) $filled_fields++;
+                    if (!empty($profile['products'])) $filled_fields++;
+                    if (!empty($profile['about_us'])) $filled_fields++;
+                    if (!empty($profile['logo'])) $filled_fields++;
+                    
+                    $completion_percentage = ($filled_fields / $total_fields) * 100;
+                    ?>
+                    
+                    <div class="profile-completion">
+                        <p><?php echo round($completion_percentage); ?>% Complete</p>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: <?php echo $completion_percentage; ?>%;"></div>
+                        </div>
+                        <?php if ($completion_percentage < 100): ?>
+                            <p style="margin-top: 10px; font-size: 13px;">Complete your profile to attract more applicants!</p>
+                            <a href="edit_profile.php" class="dashboard-btn primary-btn" style="margin-top: 10px; width: 100%; text-align: center;">
+                                Complete Profile
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <?php include $_SERVER['DOCUMENT_ROOT'] . '/Website/footer.php'; ?>
 </body>
 </html>

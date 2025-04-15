@@ -36,9 +36,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $messageType = "error";
     } else {
         // Verify OTP
-        $sql = "SELECT id FROM $table WHERE email = ? AND reset_token = ?";
+        // Use the correct table name based on user type
+        $table = 'users'; // Both graduates and companies are in the users table
+        $user_type = ($_SESSION['reset_type'] == 'graduate') ? 'graduate' : 'company';
+        
+        // Get current time for token expiry check
+        $current_time = date('Y-m-d H:i:s');
+        
+        // Update the SQL query to include user_type
+        $sql = "SELECT id FROM $table WHERE email = ? AND reset_token = ? AND reset_token_expiry > ? AND user_type = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $email, $otp);
+        $stmt->bind_param("ssss", $email, $otp, $current_time, $user_type);
         $stmt->execute();
         $result = $stmt->get_result();
         
@@ -58,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
                 
                 // Update password and clear reset token
+                // When updating the password, also use the correct table
                 $sql = "UPDATE $table SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("si", $hashed_password, $user['id']);

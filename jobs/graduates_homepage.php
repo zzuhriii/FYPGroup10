@@ -86,74 +86,94 @@
         .view-company-profile {
             display: inline-flex;
             align-items: center;
-            background-color: #f0f8ff;
-            color: #0066cc;
+            background-color: #f0f7ff;
+            color: #1976d2;
             padding: 6px 12px;
             border-radius: 4px;
             text-decoration: none;
             font-size: 0.9rem;
             transition: all 0.3s ease;
-            border: 1px solid #cce5ff;
+            border: 1px solid #bbdefb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
         
         .view-company-profile:hover {
-            background-color: #0066cc;
+            background-color: #1976d2;
             color: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
         }
         
         .view-company-profile i {
             margin-right: 5px;
+            font-size: 1rem;
         }
         
-        /* Make sure company name doesn't overflow */
+        .view-company-location {
+            display: inline-flex;
+            align-items: center;
+            background-color: #f0f7ff;
+            color: #1976d2;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 1px solid #bbdefb;
+            margin-left: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        
+        /* Update job-company to handle multiple buttons */
         .job-company {
-            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
         }
         
-        /* Floating return to dashboard button */
+        .job-company > div {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
+        
+        /* Floating dashboard button styles */
         .floating-dashboard-btn {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background-color: #3498db;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 50px;
-            text-decoration: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             display: flex;
             align-items: center;
-            z-index: 1000;
+            justify-content: center;
+            background-color: #4285f4;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
+            z-index: 1000;
         }
         
         .floating-dashboard-btn:hover {
-            background-color: #2980b9;
+            background-color: #1967d2;
             transform: translateY(-3px);
             box-shadow: 0 6px 15px rgba(0,0,0,0.25);
         }
         
         .floating-dashboard-btn i {
             margin-right: 8px;
-        }
-        
-        /* Fix for tab content display */
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
     <!-- Politeknik Logo at top left -->
     <div style="position: fixed; top: 10px; left: 10px; z-index: 1000;">
-        <a href="/Website/index.php">
-            <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" style="max-height: 60px;">
-        </a>
+        <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" style="max-height: 60px;">
     </div>
 
     <div class="container">
@@ -192,10 +212,17 @@
                         <div class="job-card">
                             <h2 class="job-title"><?php echo htmlspecialchars($job['job_Title']); ?></h2>
                             <div class="job-company">
-                                <?php echo htmlspecialchars($company_name); ?>
-                                <a href="/Website/company_profile/view_profile.php?company_id=<?php echo $job['company_id']; ?>" class="view-company-profile">
-                                    <i class="fas fa-building"></i> View Company Profile
-                                </a>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-weight: bold; margin-bottom: 8px;"><?php echo htmlspecialchars($company_name); ?></span>
+                                    <div>
+                                        <a href="/Website/company_profile/companyprofile.php?id=<?php echo $job['company_id']; ?>" class="view-company-profile">
+                                            <i class="fas fa-building"></i> View Company Profile
+                                        </a>
+                                        <a href="/Website/company_profile/location_map.php?company_id=<?php echo $job['company_id']; ?>" class="view-company-location">
+                                            <i class="fas fa-map-marker-alt"></i> View Location
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                             <div class="job-details">
                                 <span>Programme: <?php echo getProgrammeName($job['programme']); ?></span>
@@ -336,9 +363,14 @@
                             <h2 class='job-title'>".$job['job_Title']."</h2>
                             <div class='job-company'>
                                 ".$company_name."
-                                <a href='/Website/company_profile/view_profile.php?company_id=".$job['company_id']."' class='view-company-profile'>
-                                    <i class='fas fa-building'></i> View Company Profile
-                                </a>
+                                <div>
+                                    <a href='/Website/company_profile/companyprofile.php?id=".$job['company_id']."' class='view-company-profile'>
+                                        <i class='fas fa-building'></i> View Company Profile
+                                    </a>
+                                    <a href='/Website/company_profile/location_map.php?company_id=".$job['company_id']."' class='view-company-location'>
+                                        <i class='fas fa-map-marker-alt'></i> View Location
+                                    </a>
+                                </div>
                             </div>
                             <div class='job-details'>
                                 <span>Programme: ".getProgrammeName($job['programme'])."</span>
@@ -374,14 +406,16 @@
                             $table_check = mysqli_query($conn, "SHOW TABLES LIKE 'job_applications'");
                             if (mysqli_num_rows($table_check) > 0) {
                                 // Count accepted applications for this job
-                                $job_id = $job['job_ID'];
-                                $count_sql = "SELECT COUNT(*) as accepted_count FROM job_applications WHERE job_id = '$job_id' AND status = 'accepted'";
-                                $count_result = mysqli_query($conn, $count_sql);
-                                
-                                if ($count_result && $row = mysqli_fetch_assoc($count_result)) {
-                                    $accepted_count = $row['accepted_count'];
-                                    $remaining = max(0, intval($job['job_Vacancy']) - $accepted_count);
-                                    echo "<span class='vacancy-count'>" . $remaining . " positions remaining</span>";
+                                $job_id = isset($job['job_ID']) ? $job['job_ID'] : (isset($job['job_id']) ? $job['job_id'] : null);
+                                if ($job_id) {
+                                    $count_sql = "SELECT COUNT(*) as accepted_count FROM job_applications WHERE job_id = '$job_id' AND status = 'accepted'";
+                                    $count_result = mysqli_query($conn, $count_sql);
+                                    
+                                    if ($count_result && $row = mysqli_fetch_assoc($count_result)) {
+                                        $accepted_count = $row['accepted_count'];
+                                        $remaining = max(0, intval($job['job_Vacancy']) - $accepted_count);
+                                        echo "<span class='vacancy-count'>" . $remaining . " positions remaining</span>";
+                                    }
                                 }
                             }
                             

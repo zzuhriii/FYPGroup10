@@ -2,101 +2,125 @@
 // Start the session
 session_start();
 
-// Include database connection
+// Include database connection and mailer
 require_once '../includes/db.php';
-require_once '../includes/email_helper.php';
+require_once '../includes/mailer.php';
 
-// Initialize variables
+// Include PHPMailer autoloader
+require '../vendor/autoload.php';
+
+// Check if type is set
+if (!isset($_GET['type']) || ($_GET['type'] != 'graduate' && $_GET['type'] != 'company')) {
+    header("Location: /Website/index.php");
+    exit();
+}
+
+$type = $_GET['type'];
 $message = '';
 $messageType = '';
-$type = isset($_GET['type']) ? $_GET['type'] : 'graduate';
-$identifier_field = ($type == 'graduate') ? 'IC Number' : 'Email';
-$table = ($type == 'graduate') ? 'users' : 'companies';
-$identifier_column = ($type == 'graduate') ? 'ic_number' : 'email';
 
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $identifier = $_POST['identifier'];
     $email = $_POST['email'];
     
-    // Validate input
-    if (empty($identifier) || empty($email)) {
-        $message = "Please fill in all fields.";
+    // Additional field for graduates
+    $ic_number = ($type == 'graduate' && isset($_POST['ic_number'])) ? $_POST['ic_number'] : '';
+    
+    // Validate email
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $message = "Please enter a valid email address.";
+        $messageType = "error";
+    } elseif ($type == 'graduate' && empty($ic_number)) {
+        $message = "Please enter your IC number.";
         $messageType = "error";
     } else {
-        // Check if user exists
-        $sql = "SELECT id, email FROM $table WHERE $identifier_column = ? AND email = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $identifier, $email);
+        // Check if email exists in the database
+        $table = 'users'; // Both graduates and companies are in the users table
+        $user_type = ($type == 'graduate') ? 'graduate' : 'company';
+        
+        // Modify query to include IC number check for graduates
+        if ($type == 'graduate') {
+            $sql = "SELECT id, name FROM $table WHERE email = ? AND ic_number = ? AND user_type = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sss", $email, $ic_number, $user_type);
+        } else {
+            $sql = "SELECT id, name FROM $table WHERE email = ? AND user_type = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ss", $email, $user_type);
+        }
+        
         $stmt->execute();
         $result = $stmt->get_result();
         
         if ($result->num_rows > 0) {
             $user = $result->fetch_assoc();
             
-            // Generate OTP
-            $otp = sprintf("%06d", mt_rand(100000, 999999));
-            $otp_expiry = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+            // Generate OTP (6-digit number)
+            $otp = sprintf("%06d", mt_rand(1, 999999));
             
-            // Store OTP in database
+            // Set expiry time (30 minutes from now)
+            $expiry = date('Y-m-d H:i:s', strtotime('+30 minutes'));
+            
+            // Update user record with OTP and expiry
             $sql = "UPDATE $table SET reset_token = ?, reset_token_expiry = ? WHERE id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssi", $otp, $otp_expiry, $user['id']);
-            $stmt->execute();
+            $stmt->bind_param("ssi", $otp, $expiry, $user['id']);
             
-            // Prepare email content
-            $to = $email;
-            $subject = "Password Reset OTP - Politeknik Brunei Marketing Day";
-            $message_body = "
-            <html>
-            <head>
-                <title>Password Reset OTP</title>
-                <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    h2 { color: #4285f4; }
-                    .otp { font-size: 24px; font-weight: bold; color: #4285f4; padding: 10px; background-color: #f5f5f5; display: inline-block; }
-                    .footer { margin-top: 30px; font-size: 12px; color: #777; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <h2>Password Reset Request</h2>
-                    <p>You have requested to reset your password for the Politeknik Brunei Marketing Day platform.</p>
-                    <p>Your One-Time Password (OTP) is: <span class='otp'>$otp</span></p>
-                    <p>This OTP will expire in 15 minutes.</p>
-                    <p>If you did not request this password reset, please ignore this email.</p>
-                    <p>Thank you,<br>Politeknik Brunei Marketing Day Team</p>
-                    <div class='footer'>
-                        <p>This is an automated email. Please do not reply to this message.</p>
+            if ($stmt->execute()) {
+                // Store email and type in session for verification
+                $_SESSION['reset_email'] = $email;
+                $_SESSION['reset_type'] = $type;
+                
+                // Prepare email content
+                $subject = "Password Reset OTP - Politeknik Brunei Marketing Day";
+                $body = "
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                        .header { background-color: #4285f4; color: white; padding: 10px 20px; text-align: center; }
+                        .content { padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd; }
+                        .otp { font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0; letter-spacing: 5px; color: #4285f4; }
+                        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #777; }
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <div class='header'>
+                            <h2>Password Reset Request</h2>
+                        </div>
+                        <div class='content'>
+                            <p>Dear " . htmlspecialchars($user['name']) . ",</p>
+                            <p>We received a request to reset your password for your Politeknik Brunei Marketing Day account. Please use the following One-Time Password (OTP) to complete your password reset:</p>
+                            <div class='otp'>" . $otp . "</div>
+                            <p>This OTP will expire in 30 minutes.</p>
+                            <p>If you did not request a password reset, please ignore this email or contact support if you have concerns.</p>
+                        </div>
+                        <div class='footer'>
+                            <p>This is an automated email. Please do not reply to this message.</p>
+                            <p>&copy; " . date('Y') . " Politeknik Brunei Marketing Day. All rights reserved.</p>
+                        </div>
                     </div>
-                </div>
-            </body>
-            </html>
-            ";
-            
-            // Send email with OTP
-            $email_result = sendEmail($to, $subject, $message_body);
-            
-            if ($email_result === true) {
-                // Store email in session for the next step
-                $_SESSION['reset_email'] = $email;
-                $_SESSION['reset_type'] = $type;
+                </body>
+                </html>
+                ";
                 
-                // Redirect to OTP verification page
-                header("Location: verify_otp.php");
-                exit();
+                // Send email
+                if (sendEmail($email, $subject, $body)) {
+                    // Redirect to OTP verification page
+                    header("Location: /Website/authentication/verify_otp.php");
+                    exit();
+                } else {
+                    $message = "Failed to send OTP email. Please try again later.";
+                    $messageType = "error";
+                }
             } else {
-                // For development/testing purposes, show the OTP on screen if email fails
-                $message = "Email could not be sent. For testing purposes, your OTP is: $otp <br><a href='verify_otp.php'>Click here to enter your OTP and reset your password</a>";
-                $messageType = "success";
-                
-                // Store email in session for the next step
-                $_SESSION['reset_email'] = $email;
-                $_SESSION['reset_type'] = $type;
+                $message = "Failed to process your request. Please try again.";
+                $messageType = "error";
             }
         } else {
-            $message = "No account found with the provided details.";
+            $message = "Email not found. Please check your email address and try again.";
             $messageType = "error";
         }
     }
@@ -129,14 +153,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <form method="POST" action="">
             <div class="form-group">
-                <label for="identifier"><?php echo $identifier_field; ?>:</label>
-                <input type="text" id="identifier" name="identifier" required>
-            </div>
-            
-            <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
             </div>
+            
+            <?php if ($type == 'graduate'): ?>
+            <div class="form-group">
+                <label for="ic_number">IC Number:</label>
+                <input type="text" id="ic_number" name="ic_number" required>
+            </div>
+            <?php endif; ?>
             
             <button type="submit">Send Reset OTP</button>
         </form>

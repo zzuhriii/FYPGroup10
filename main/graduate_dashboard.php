@@ -36,6 +36,41 @@ $profile_pic = !empty($user['profile_pic']) ? "/Website/user_profile/uploads/pro
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .email-reminder {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .email-reminder i {
+            color: #ffc107;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .email-reminder p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #856404;
+        }
+        
+        .dashboard-button.secondary {
+            background-color: #6c757d;
+            margin-top: 8px;
+            font-size: 14px;
+            padding: 6px 12px;
+        }
+        
+        .dashboard-button.secondary:hover {
+            background-color: #5a6268;
+        }
+    </style>
 </head>
 <body>
 <header>
@@ -78,6 +113,15 @@ $profile_pic = !empty($user['profile_pic']) ? "/Website/user_profile/uploads/pro
                             <i class="fas fa-briefcase"></i> View Available Jobs
                         </a>
                         
+                        <?php if (strpos($user['email'], '@graduate.pbu.edu.bn') !== false): ?>
+                        <div class="email-reminder">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <p>Please update your email address in your profile for better communication.</p>
+                            <a href="/Website/user_profile/profile.php" class="dashboard-button secondary">
+                                <i class="fas fa-envelope"></i> Update Email
+                            </a>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

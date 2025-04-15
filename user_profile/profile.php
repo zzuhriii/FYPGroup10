@@ -91,7 +91,21 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Page - Politeknik Brunei</title>
     <link rel="stylesheet" href="/Website/assets/css/profile.css">
-  
+    <style>
+        .form-note {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        input[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+            border-color: #ced4da;
+        }
+    </style>
 </head>
 <body>
     <script src="/Website/assets/js/profile.js"></script>
@@ -131,7 +145,8 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
 
                 <div class="input-field">
                     <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                    <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" readonly>
+                    <small class="form-note">Email cannot be changed for security reasons.</small>
                 </div>
 
                 <div class="input-field">
@@ -141,11 +156,42 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
 
                 <div class="input-field">
                     <label for="ic_number">IC Number:</label>
-                    <input type="text" id="ic_number" name="ic_number" value="<?php echo htmlspecialchars($user['ic_number']); ?>" required>
+                    <input type="text" id="ic_number" name="ic_number" value="<?php echo htmlspecialchars($user['ic_number']); ?>" readonly>
+                    <small class="form-note">IC Number cannot be changed.</small>
                 </div>
 
                 <div class="input-field">
                     <label for="programme">Programme:</label>
+                    <?php if (!empty($user['programme'])): ?>
+                        <input type="text" id="programme" name="programme" value="<?php 
+                            $programmes = [
+                                'DBAF' => 'DIPLOMA IN BUSINESS ACCOUNTING & FINANCE',
+                                'DEMS' => 'DIPLOMA IN ENTREPRENEURSHIP & MARKETING STRATEGIES',
+                                'DHCM' => 'DIPLOMA IN HUMAN CAPITAL MANAGEMENT',
+                                'DAHMO' => 'DIPLOMA APPRENTICESHIP IN HOSPITALITY MANAGEMENT AND OPERATIONS',
+                                'DAD' => 'DIPLOMA IN APPLICATIONS DEVELOPMENT',
+                                'DCN' => 'DIPLOMA IN CLOUD AND NETWORKING',
+                                'DDA' => 'DIPLOMA IN DATA ANALYTICS',
+                                'DDAM' => 'DIGITAL ARTS AND MEDIA',
+                                'DWT' => 'DIPLOMA IN WEB TECHNOLOGY',
+                                'DHSN' => 'DIPLOMA IN HEALTH SCIENCE (NURSING)',
+                                'DHSM' => 'DIPLOMA IN HEALTH SCIENCE (MIDWIFERY)',
+                                'DHSP' => 'DIPLOMA IN HEALTH SCIENCE (PARAMEDIC)',
+                                'DHSCT' => 'DIPLOMA IN HEALTH SCIENCE (CARDIOVASCULAR TECHNOLOGY)',
+                                'DHSPH' => 'DIPLOMA IN HEALTH SCIENCE (PUBLIC HEALTH)',
+                                'DA' => 'DIPLOMA IN ARCHITECTURE',
+                                'DID' => 'DIPLOMA IN INTERIOR DESIGN',
+                                'DCE' => 'DIPLOMA IN CIVIL ENGINEERING',
+                                'DEE' => 'DIPLOMA IN ELECTRICAL ENGINEERING',
+                                'DECE' => 'DIPLOMA IN ELECTRONIC AND COMMUNICATION ENGINEERING',
+                                'DME' => 'DIPLOMA IN MECHANICAL ENGINEERING',
+                                'DPE' => 'DIPLOMA IN PETROLEUM ENGINEERING'
+                            ];
+                            echo htmlspecialchars($programmes[$user['programme']] ?? $user['programme']); 
+                        ?>" readonly>
+                        <input type="hidden" name="programme" value="<?php echo htmlspecialchars($user['programme']); ?>">
+                        <small class="form-note">Programme cannot be changed once set.</small>
+                    <?php else: ?>
                     <select id="programme" name="programme" required>
                         <option value="">Select Programme</option>
                         <!-- School of Business -->
@@ -182,6 +228,7 @@ $cv = !empty($user['cv']) ? "uploads/cv/" . $user['cv'] : null;
                             <option value="DPE" <?php echo (isset($user['programme']) && $user['programme'] == 'DPE') ? 'selected' : ''; ?>>DIPLOMA IN PETROLEUM ENGINEERING</option>
                         </optgroup>
                     </select>
+                    <?php endif; ?>
                 </div>
 
                 <div class="input-field">

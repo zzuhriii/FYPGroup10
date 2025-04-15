@@ -40,9 +40,9 @@ if ($conn->query($sql) === FALSE) {
     die("Error creating users table: " . $conn->error);
 }
 
-// Users table update
+// Users table update - first add the column if it doesn't exist, then modify it
 $sql = "ALTER TABLE users 
-    MODIFY user_type enum('graduate','company','admin') NOT NULL,
+    ADD COLUMN IF NOT EXISTS user_type enum('graduate','company','admin') DEFAULT 'graduate',
     ADD COLUMN IF NOT EXISTS phone varchar(15) DEFAULT NULL,
     ADD COLUMN IF NOT EXISTS profile_pic varchar(255) DEFAULT NULL,
     ADD COLUMN IF NOT EXISTS cv varchar(255) DEFAULT NULL,
@@ -66,10 +66,19 @@ if ($conn->query($sql) === FALSE) {
 
 // Jobs table for company job postings
 $sql = "CREATE TABLE IF NOT EXISTS jobs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(100) NOT NULL,
-    description TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    job_ID int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    job_UserID int(11) NOT NULL,
+    job_Title varchar(256) NOT NULL,
+    job_Description text NOT NULL,
+    job_Created timestamp NOT NULL DEFAULT current_timestamp(),
+    job_Category varchar(256) NOT NULL,
+    job_Vacancy int(50) NOT NULL,
+    job_Offered datetime NOT NULL,
+    job_location varchar(255) DEFAULT NULL,
+    application_deadline date DEFAULT NULL,
+    programme varchar(10) DEFAULT NULL,
+    company_id int(11) DEFAULT NULL,
+    salary_estimation VARCHAR(100) DEFAULT NULL
 )";
 if ($conn->query($sql) === FALSE) {
     die("Error creating jobs table: " . $conn->error);
@@ -82,7 +91,7 @@ $sql = "CREATE TABLE IF NOT EXISTS applications (
     job_id INT NOT NULL,
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (job_id) REFERENCES jobs(id)
+    FOREIGN KEY (job_id) REFERENCES jobs(job_ID)
 )";
 if ($conn->query($sql) === FALSE) {
     die("Error creating applications table: " . $conn->error);
@@ -173,6 +182,9 @@ $sql = "CREATE TABLE IF NOT EXISTS company_profile (
     updated_at TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 )";
+if ($conn->query($sql) === FALSE) {
+    die("Error creating company_profile table: " . $conn->error);
+}
 
 // Job applications table
 $sql = "CREATE TABLE IF NOT EXISTS job_applications (
@@ -198,22 +210,7 @@ if ($conn->query($sql) === FALSE) {
     error_log("Error adding salary_estimation column: " . $conn->error);
 }
 
-// Job applications table
-$sql = "CREATE TABLE IF NOT EXISTS job_applications (
-    id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    job_id int(11) NOT NULL,
-    user_id int(11) NOT NULL,
-    cover_letter text DEFAULT NULL,
-    application_date timestamp NOT NULL DEFAULT current_timestamp(),
-    status enum('pending','accepted','declined') DEFAULT 'pending',
-    feedback text DEFAULT NULL,
-    decline_reason text DEFAULT NULL,
-    FOREIGN KEY (job_id) REFERENCES jobs(job_ID) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-)";
-if ($conn->query($sql) === FALSE) {
-    die("Error creating job_applications table: " . $conn->error);
-}
+
 
 
 ?>

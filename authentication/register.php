@@ -19,9 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($register_type == 'graduate') {
             $ic_number = trim($_POST['ic_number']);
-
-            // Generate dummy email based on IC number
-            $email = $ic_number . "@graduate.pbu.edu.bn";
+            $email = trim($_POST['email']); // Get email from form instead of generating it
 
             // Check if IC number already exists
             $check_sql = "SELECT * FROM users WHERE ic_number = ? OR email = ?";
@@ -33,14 +31,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($result->num_rows > 0) {
                 echo "<script>alert('IC Number or Email already registered!');</script>";
             } else {
-                $sql = "INSERT INTO users (ic_number, email, name, password, user_type) VALUES (?, ?, ?, ?, 'graduate')";
+                $sql = "INSERT INTO users (ic_number, email, name, password, user_type, email_locked) VALUES (?, ?, ?, ?, 'graduate', 1)";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("ssss", $ic_number, $email, $name, $hashed_password);
                 
                 if ($stmt->execute()) {
-                    echo "<script>alert('Registration successful!'); window.location.href = '/Website/index.php';</script>";
-                } else {
-                    echo "<script>alert('Error: " . $stmt->error . "');</script>";
+                    // Registration successful
+                    
+                    // Send welcome email
+                    require_once '../includes/mailer.php';
+                    sendWelcomeEmail($email, $name, 'graduate');
+                    
+                    // Redirect to success page or login page
+                    $_SESSION['registration_success'] = true;
+                    header("Location: /Website/index.php");
+                    exit();
                 }
             }
         } else {
@@ -66,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bind_param("sss", $email, $name, $hashed_password);
                 
                 if ($stmt->execute()) {
-                    echo "<script>alert('Registration successful!'); window.location.href = 'login.php';</script>";
+                    echo "<script>alert('Registration successful!'); window.location.href = '/Website/index.php';</script>";
                 } else {
                     echo "<script>alert('Error: " . $stmt->error . "');</script>";
                 }
@@ -86,6 +91,15 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Politeknik Brunei Marketing Day</title>
     <link rel="stylesheet" href="/Website/assets/css/register.css">
+    <style>
+        .form-text {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
     <!-- Decorative elements -->
@@ -111,6 +125,14 @@ $conn->close();
             <div class="form-group">
                 <label for="graduate-ic">IC Number</label>
                 <input type="text" id="graduate-ic" name="ic_number" placeholder="Enter your IC Number" required>
+                <small class="form-text">Note: You won't be able to change this IC number later.</small>
+                
+            </div>
+            
+            <div class="form-group">
+                <label for="graduate-email">Email Address</label>
+                <input type="email" id="graduate-email" name="email" placeholder="Enter your email address" required>
+                <small class="form-text">Note: You won't be able to change this email later.</small>
             </div>
             
             <div class="form-group">

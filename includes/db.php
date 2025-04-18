@@ -53,6 +53,11 @@ if ($conn->query($sql) === FALSE) {
     die("Error updating users table: " . $conn->error);
 }
 
+$sql = "ALTER TABLE users ADD COLUMN IF NOT EXISTS email_locked TINYINT(1) DEFAULT 0";
+if ($conn->query($sql) === FALSE) {
+    error_log("Error adding email_locked column: " . $conn->error);
+}
+
 // CV table for storing graduate CVs
 $sql = "CREATE TABLE IF NOT EXISTS cvs (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -24,14 +24,14 @@ $company = $result->fetch_assoc();
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get form data
-    $job_title = mysqli_real_escape_string($conn, $_POST['job_title']);
-    $job_description = mysqli_real_escape_string($conn, $_POST['job_description']);
-    $job_location = mysqli_real_escape_string($conn, $_POST['job_location']);
-    $job_vacancy = mysqli_real_escape_string($conn, $_POST['job_vacancy']);
-    $application_deadline = mysqli_real_escape_string($conn, $_POST['application_deadline']);
-    $programme = mysqli_real_escape_string($conn, $_POST['programme']);
-    $job_category = mysqli_real_escape_string($conn, $_POST['job_category']);
-    $salary_estimation = mysqli_real_escape_string($conn, $_POST['salary_estimation']);
+    $job_title = $_POST['job_title'];
+    $job_description = $_POST['job_description'];
+    $job_location = $_POST['job_location'];
+    $job_vacancy = $_POST['job_vacancy'];
+    $application_deadline = $_POST['application_deadline'];
+    $programme = $_POST['programme'];
+    $job_category = $_POST['job_category'];
+    $salary_estimation = $_POST['salary_estimation'];
 
     // Insert job into database - using job_Location instead of job_location
     $sql = "INSERT INTO jobs (job_Title, job_Description, job_Location, job_Vacancy, application_deadline, programme, job_Created, company_id, job_category, salary_estimation) 
@@ -53,81 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post a Job - Politeknik Brunei</title>
-    <link rel="stylesheet" href="/Website/assets/css/styles.css">
-    <style>
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        
-        input[type="text"],
-        input[type="number"],
-        input[type="date"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        
-        textarea {
-            height: 200px;
-        }
-        
-        .btn-submit {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
-        .btn-submit:hover {
-            background-color: #2980b9;
-        }
-        
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-        
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        
-        .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            color: #3498db;
-            text-decoration: none;
-        }
-        
-        .back-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="/Website/assets/css/index.css">
+    <link rel="stylesheet" href="/Website/assets/css/post_job.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <!-- Politeknik Logo at top left -->
@@ -174,12 +102,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="job_category">Job Category:</label>
                 <select id="job_category" name="job_category" required>
                     <option value="">Select a category</option>
-                    <option value="Full-time">Full-time</option>
-                    <option value="Part-time">Part-time</option>
-                    <option value="Contract">Contract</option>
-                    <option value="Internship">Internship</option>
-                    <option value="Remote">Remote</option>
-                    <option value="Temporary">Temporary</option>
+                    <option value="full_time">Full-time</option>
+                    <option value="part_time">Part-time</option>
+                    <option value="contract">Contract</option>
+                    <option value="internship">Internship</option>
+                    <option value="remote">Remote</option>
+                    <option value="temporary">Temporary</option>
                 </select>
             </div>
             
@@ -191,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
                 <label for="salary_estimation">Salary Estimation (BND):</label>
                 <input type="text" id="salary_estimation" name="salary_estimation" placeholder="e.g. 1500-2000 per month or Negotiable">
-                <small class="form-text text-muted">Provide an estimated salary range to attract qualified candidates.</small>
+                <small class="form-text">Provide an estimated salary range to attract qualified candidates.</small>
             </div>
             
             <div class="form-group">
@@ -201,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <div class="form-group">
                 <label for="programme">Target Programme (Optional):</label>
-                <select id="programme" name="programme" class="form-control">
+                <select id="programme" name="programme">
                     <option value="">Any Programme</option>
                     <!-- School of Business -->
                     <optgroup label="School of Business">
@@ -237,13 +165,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <option value="DPE">DIPLOMA IN PETROLEUM ENGINEERING</option>
                     </optgroup>
                 </select>
-                <small class="form-text text-muted">Select a specific programme if this job is particularly suited for graduates from that programme.</small>
+                <small class="form-text">Select a specific programme if this job is particularly suited for graduates from that programme.</small>
             </div>
             
             <button type="submit" class="btn-submit">Post Job</button>
         </form>
         
-        <a href="/Website/company_profile/company_dashboard.php" class="back-link">Back to Dashboard</a>
+        <a href="/Website/company_profile/company_dashboard.php" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
     </div>
 
     <footer class="footer">

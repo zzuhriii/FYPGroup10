@@ -16,31 +16,41 @@
         exit();
     }
     
-    $application_id = mysqli_real_escape_string($conn, $_GET['id']);
+    $application_id = $_GET['id'];
     
-    // Get application details with job information
-    $app_sql = "SELECT a.*, j.job_Title, j.job_Category, j.job_Description, c.name as company_name 
-               FROM job_applications a 
-               JOIN jobs j ON a.job_id = j.job_ID 
-               JOIN users c ON j.company_id = c.id
-               WHERE a.id = '$application_id' AND a.user_id = '$user_id'";
+    // Check if company_id column exists in jobs table
+    $company_id_check = mysqli_query($conn, "SHOW COLUMNS FROM jobs LIKE 'company_id'");
+    $has_company_id = mysqli_num_rows($company_id_check) > 0;
     
-    // If company_id column doesn't exist in jobs table, use this alternative query
-    if (mysqli_query($conn, "SHOW COLUMNS FROM jobs LIKE 'company_id'")->num_rows == 0) {
+    // Prepare the SQL query based on table structure
+    if ($has_company_id) {
+        $app_sql = "SELECT a.*, j.job_Title, j.job_Category, j.job_Description, c.name as company_name 
+                   FROM job_applications a 
+                   JOIN jobs j ON a.job_id = j.job_ID 
+                   JOIN users c ON j.company_id = c.id
+                   WHERE a.id = ? AND a.user_id = ?";
+        
+        $stmt = $conn->prepare($app_sql);
+        $stmt->bind_param("ii", $application_id, $user_id);
+    } else {
         $app_sql = "SELECT a.*, j.job_Title, j.job_Category, j.job_Description, 'Company' as company_name 
                    FROM job_applications a 
                    JOIN jobs j ON a.job_id = j.job_ID 
-                   WHERE a.id = '$application_id' AND a.user_id = '$user_id'";
+                   WHERE a.id = ? AND a.user_id = ?";
+        
+        $stmt = $conn->prepare($app_sql);
+        $stmt->bind_param("ii", $application_id, $user_id);
     }
     
-    $app_result = mysqli_query($conn, $app_sql);
+    $stmt->execute();
+    $app_result = $stmt->get_result();
     
-    if (mysqli_num_rows($app_result) == 0) {
+    if ($app_result->num_rows == 0) {
         header("Location: my_applications.php");
         exit();
     }
     
-    $app = mysqli_fetch_assoc($app_result);
+    $app = $app_result->fetch_assoc();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -49,146 +59,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Application Details - Politeknik Brunei Marketing Day</title>
     <link rel="stylesheet" href="/Website/assets/css/index.css">
-    <style>
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        h1, h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        
-        .application-header {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-left: 4px solid #4285f4;
-        }
-        
-        .job-title {
-            font-size: 1.6em;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .company-name {
-            font-size: 1.2em;
-            color: #555;
-            margin-bottom: 15px;
-        }
-        
-        .meta-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 10px;
-            color: #555;
-        }
-        
-        .status {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-            text-align: center;
-            margin-top: 10px;
-        }
-        
-        .pending {
-            background-color: #FFF3CD;
-            color: #856404;
-        }
-        
-        .accepted {
-            background-color: #D4EDDA;
-            color: #155724;
-        }
-        
-        .declined {
-            background-color: #F8D7DA;
-            color: #721C24;
-        }
-        
-        .section {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .section-title {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #333;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        
-        .job-description, .cover-letter {
-            white-space: pre-line;
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        .status-message {
-            padding: 15px;
-            margin-bottom: 25px;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .status-accepted {
-            background-color: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
-        
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-            border-left: 4px solid #ffc107;
-        }
-        
-        .status-declined {
-            background-color: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-        }
-        
-        .back-link {
-            text-align: center;
-            margin-top: 30px;
-        }
-        
-        .back-link a {
-            color: #4285f4;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-block;
-            padding: 10px 20px;
-            border: 1px solid #4285f4;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        
-        .back-link a:hover {
-            background-color: #4285f4;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="/Website/assets/css/application_details.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <!-- Politeknik Logo at top left -->
+    <div style="position: absolute; top: 10px; left: 10px;">
+        <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" style="max-height: 60px;">
+    </div>
+
     <div class="container">
         <h1>Application Details</h1>
         
@@ -201,6 +80,9 @@
         <div class="status-message status-declined">
             <p>We're sorry, but your application has been declined by <?php echo htmlspecialchars($app['company_name']); ?>.</p>
             <p>Don't be discouraged - keep applying to other opportunities that match your skills and interests.</p>
+            <?php if (!empty($app['decline_reason'])): ?>
+            <p class="decline-reason">Reason: <?php echo htmlspecialchars($app['decline_reason']); ?></p>
+            <?php endif; ?>
         </div>
         <?php else: ?>
         <div class="status-message status-pending">
@@ -234,7 +116,7 @@
         </div>
         
         <div class="back-link">
-            <a href="my_applications.php">Back to My Applications</a>
+            <a href="my_applications.php"><i class="fas fa-arrow-left"></i> Back to My Applications</a>
         </div>
     </div>
 </body>

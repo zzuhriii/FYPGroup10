@@ -42,10 +42,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     require_once '../includes/mailer.php';
                     sendWelcomeEmail($email, $name, 'graduate');
                     
-                    // Redirect to success page or login page
+                    // Set success message in session
                     $_SESSION['registration_success'] = true;
-                    header("Location: /Website/index.php");
+                    $_SESSION['success_message'] = "Account created successfully! You can now log in.";
+                    
+                    echo "<script>
+                        alert('Account created successfully! You can now log in.');
+                        window.location.href = '/Website/index.php';
+                    </script>";
                     exit();
+                } else {
+                    echo "<script>alert('Error: " . $stmt->error . "');</script>";
                 }
             }
         } else {
@@ -71,6 +78,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bind_param("sss", $email, $name, $hashed_password);
                 
                 if ($stmt->execute()) {
+                    // Registration successful
+                    
+                    // Send welcome email to company
+                    require_once '../includes/mailer.php';
+                    sendWelcomeEmail($email, $name, 'company');
+                    
+                    // Set success message in session
+                    $_SESSION['registration_success'] = true;
+                    $_SESSION['success_message'] = "Account created successfully! You can now log in.";
+                    
                     echo "<script>alert('Registration successful!'); window.location.href = '/Website/index.php';</script>";
                 } else {
                     echo "<script>alert('Error: " . $stmt->error . "');</script>";

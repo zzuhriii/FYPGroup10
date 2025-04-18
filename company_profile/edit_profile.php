@@ -301,13 +301,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Execute the query
-        if ($stmt->execute()) {
-            echo "<script>alert('$section updated successfully!');</script>";
-        } else {
-            throw new Exception("Execute failed: " . $stmt->error);
-        }
+        if (isset($stmt) && $section != 'save_all') {
+            if ($stmt->execute()) {
+                echo "<script>alert('$section updated successfully!');</script>";
+            } else {
+                throw new Exception("Execute failed: " . $stmt->error);
+            }
 
-        $stmt->close();
+            $stmt->close();
+        }
     } catch (Exception $e) {
         echo "<script>alert('Error: " . addslashes($e->getMessage()) . "');</script>";
     }
@@ -322,408 +324,186 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile - Politeknik Brunei</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f0f4f8;
-            margin: 0;
-            padding: 0;
-        }
+    <link rel="stylesheet" href="/Website/assets/css/index.css">
+    <link rel="stylesheet" href="/Website/assets/css/edit_profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Politeknik Brunei Header -->
+        <div class="pb-header">
+            <div style="display: flex; align-items: center;">
+                <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" class="pb-logo" onerror="this.src='/Website/assets/images/default-logo.png'; this.onerror=null;">
+                <h1>Politeknik Brunei - Company Profile Editor</h1>
+            </div>
+            <a href="/Website/company_profile/company_dashboard.php" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
         
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-        
-        .admin-panel {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-        
-        .admin-panel h2 {
-            color: #00447c;
-            margin-top: 0;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        /* Tab navigation styling */
-        .tab-nav {
-            display: flex;
-            flex-wrap: wrap;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 20px;
-        }
-        
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 10px 15px;
-            margin-right: 5px;
-            cursor: pointer;
-            border-radius: 4px 4px 0 0;
-            font-weight: bold;
-            color: #777;
-        }
-        
-        .tab-btn.active {
-            background-color: #00447c;
-            color: white;
-        }
-        
-        /* Form sections */
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .edit-form {
-            background-color: #f9f9f9;
-            border-radius: 6px;
-            padding: 15px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .edit-form h2 {
-            font-size: 1.1rem;
-            margin-top: 0;
-            margin-bottom: 12px;
-            color: #00447c;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 8px;
-        }
-        
-        input[type="text"], 
-        input[type="password"], 
-        textarea {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-family: inherit;
-        }
-        
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        input[type="file"] {
-            margin-bottom: 12px;
-            display: block;
-        }
-        
-        button {
-            background-color: #00447c;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: #003366;
-        }
-        
-        #saveAllForm button {
-            background-color: #006600;
-            padding: 10px 15px;
-            font-size: 1em;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-        
-        #saveAllForm button:hover {
-            background-color: #005500;
-        }
-        
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-        
-        .error-message {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-        
-        /* PB Theme Colors */
-        .pb-header {
-            background-color: #00447c;
-            color: white;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .pb-header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        
-        .pb-logo {
-            height: 60px;
-            margin-right: 15px;
-        }
-        
-        .back-btn {
-            background-color: #f0f4f8;
-            color: #00447c;
-            border: 2px solid #00447c;
-            padding: 8px 15px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            transition: all 0.3s;
-        }
-        
-        .back-btn:hover {
-            background-color: #00447c;
-            color: white;
-        }
-        
-        .back-btn i {
-            margin-right: 8px;
-        }
-        
-        </style>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-        <style>
-            /* Floating save button styles */
-            .floating-save {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                z-index: 1000;
-            }
+        <div class="admin-panel">
+            <h2>Edit Company Profile</h2>
             
-            .floating-save button {
-                padding: 15px 20px;
-                font-size: 16px;
-                background-color: #006600;
-                color: white;
-                border: none;
-                border-radius: 50px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                transition: all 0.3s ease;
-            }
-            
-            .floating-save button:hover {
-                background-color: #005500;
-                transform: translateY(-3px);
-                box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-            }
-            
-            .floating-save button i {
-                margin-right: 8px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <!-- Politeknik Brunei Header -->
-            <div class="pb-header">
-                <div style="display: flex; align-items: center;">
-                    <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" class="pb-logo" onerror="this.src='/Website/assets/images/default-logo.png'; this.onerror=null;">
-                    <h1>Politeknik Brunei - Company Profile Editor</h1>
-                </div>
-                <a href="/Website/company_profile/company_dashboard.php" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="visual">Visual Elements</button>
+                <button class="tab-btn" data-tab="overview">Company Overview</button>
+                <button class="tab-btn" data-tab="history">History & Background</button>
+                <button class="tab-btn" data-tab="mission">Mission & Vision</button>
+                <button class="tab-btn" data-tab="products">Products & Services</button>
+                <button class="tab-btn" data-tab="achievements">Achievements & Awards</button>
+                <button class="tab-btn" data-tab="about">About Us</button>
             </div>
             
-            <div class="admin-panel">
-                <h2>Edit Company Profile</h2>
-                
-                <!-- Tab Navigation -->
-                <div class="tab-nav">
-                    <button class="tab-btn active" data-tab="visual">Visual Elements</button>
-                    <button class="tab-btn" data-tab="overview">Company Overview</button>
-                    <button class="tab-btn" data-tab="history">History & Background</button>
-                    <button class="tab-btn" data-tab="mission">Mission & Vision</button>
-                    <button class="tab-btn" data-tab="products">Products & Services</button>
-                    <button class="tab-btn" data-tab="achievements">Achievements & Awards</button>
-                    <button class="tab-btn" data-tab="about">About Us</button>
+            <!-- Tab content sections remain the same -->
+            <!-- Visual Elements Tab -->
+            <div id="visual-tab" class="tab-content active">
+                <div class="edit-form">
+                    <h2>Visual Elements</h2>
+                    <form action="edit_profile.php" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="section" value="visual_elements">
+                        
+                        <label for="logoUpload">Company Logo:</label>
+                        <?php if (!empty($profile['logo'])): ?>
+                            <div class="image-preview">
+                                <img src="data:image/jpeg;base64,<?php echo base64_encode($profile['logo']); ?>" alt="Company Logo">
+                            </div>
+                        <?php endif; ?>
+                        <input type="file" name="logoUpload" id="logoUpload">
+                        
+                        <label for="officePhotoUpload">Office Photo:</label>
+                        <?php if (!empty($profile['office_photo'])): ?>
+                            <div class="image-preview">
+                                <img src="data:image/jpeg;base64,<?php echo base64_encode($profile['office_photo']); ?>" alt="Office Photo">
+                            </div>
+                        <?php endif; ?>
+                        <input type="file" name="officePhotoUpload" id="officePhotoUpload">
+                        
+                        <label for="infographicUpload">Company Infographic:</label>
+                        <?php if (!empty($profile['infographic'])): ?>
+                            <div class="image-preview">
+                                <img src="data:image/jpeg;base64,<?php echo base64_encode($profile['infographic']); ?>" alt="Company Infographic">
+                            </div>
+                        <?php endif; ?>
+                        <input type="file" name="infographicUpload" id="infographicUpload">
+                        
+                        <button type="submit">Save Visual Elements</button>
+                    </form>
                 </div>
-                
-                <!-- Tab content sections remain the same -->
-                <!-- Visual Elements Tab -->
-                <div id="visual-tab" class="tab-content active">
-                    <div class="edit-form">
-                        <h2>Visual Elements</h2>
-                        <form action="edit_profile.php" method="post" enctype="multipart/form-data">
-                            <input type="hidden" name="section" value="visual_elements">
-                            
-                            <label for="logoUpload">Company Logo:</label>
-                            <?php if (!empty($profile['logo'])): ?>
-                                <div class="image-preview">
-                                    <img src="data:image/jpeg;base64,<?php echo base64_encode($profile['logo']); ?>" alt="Company Logo" style="max-width: 200px; margin-bottom: 10px;">
-                                </div>
-                            <?php endif; ?>
-                            <input type="file" name="logoUpload" id="logoUpload">
-                            
-                            <label for="officePhotoUpload">Office Photo:</label>
-                            <?php if (!empty($profile['office_photo'])): ?>
-                                <div class="image-preview">
-                                    <img src="data:image/jpeg;base64,<?php echo base64_encode($profile['office_photo']); ?>" alt="Office Photo" style="max-width: 200px; margin-bottom: 10px;">
-                                </div>
-                            <?php endif; ?>
-                            <input type="file" name="officePhotoUpload" id="officePhotoUpload">
-                            
-                            <label for="infographicUpload">Company Infographic:</label>
-                            <?php if (!empty($profile['infographic'])): ?>
-                                <div class="image-preview">
-                                    <img src="data:image/jpeg;base64,<?php echo base64_encode($profile['infographic']); ?>" alt="Company Infographic" style="max-width: 200px; margin-bottom: 10px;">
-                                </div>
-                            <?php endif; ?>
-                            <input type="file" name="infographicUpload" id="infographicUpload">
-                            
-                            <button type="submit">Save Visual Elements</button>
-                        </form>
-                    </div>
+            </div>
+            
+            <!-- Company Overview Tab -->
+            <div id="overview-tab" class="tab-content">
+                <!-- Content for Company Overview tab -->
+                <div class="edit-form">
+                    <h2>Company Overview</h2>
+                    <form action="edit_profile.php" method="post">
+                        <input type="hidden" name="section" value="company_overview">
+                        
+                        <label for="companyName">Company Name:</label>
+                        <input type="text" name="companyName" id="companyName" value="<?php echo htmlspecialchars($profile['company_name'] ?? ''); ?>">
+                        
+                        <label for="tagline">Tagline:</label>
+                        <input type="text" name="tagline" id="tagline" value="<?php echo htmlspecialchars($profile['tagline'] ?? ''); ?>">
+                        
+                        <label for="location">Location:</label>
+                        <input type="text" name="location" id="location" value="<?php echo htmlspecialchars($profile['location'] ?? ''); ?>">
+                        
+                        <label for="contactInfo">Contact Information:</label>
+                        <input type="text" name="contactInfo" id="contactInfo" value="<?php echo htmlspecialchars($profile['contact_info'] ?? ''); ?>">
+                        
+                        <button type="submit">Save Company Overview</button>
+                    </form>
                 </div>
-                
-                <!-- Company Overview Tab -->
-                <div id="overview-tab" class="tab-content">
-                    <!-- Content for Company Overview tab -->
-                    <div class="edit-form">
-                        <h2>Company Overview</h2>
-                        <form action="edit_profile.php" method="post">
-                            <input type="hidden" name="section" value="company_overview">
-                            
-                            <label for="companyName">Company Name:</label>
-                            <input type="text" name="companyName" id="companyName" value="<?php echo htmlspecialchars($profile['company_name'] ?? ''); ?>">
-                            
-                            <label for="tagline">Tagline:</label>
-                            <input type="text" name="tagline" id="tagline" value="<?php echo htmlspecialchars($profile['tagline'] ?? ''); ?>">
-                            
-                            <label for="location">Location:</label>
-                            <input type="text" name="location" id="location" value="<?php echo htmlspecialchars($profile['location'] ?? ''); ?>">
-                            
-                            <label for="contactInfo">Contact Information:</label>
-                            <input type="text" name="contactInfo" id="contactInfo" value="<?php echo htmlspecialchars($profile['contact_info'] ?? ''); ?>">
-                            
-                            <button type="submit">Save Company Overview</button>
-                        </form>
-                    </div>
+            </div>
+            
+            <!-- Other tabs content... -->
+            
+            <!-- History & Background Tab -->
+            <div id="history-tab" class="tab-content">
+                <div class="edit-form">
+                    <h2>History & Background</h2>
+                    <form action="edit_profile.php" method="post">
+                        <input type="hidden" name="section" value="history_background">
+                        
+                        <label for="foundingDate">Founding Date:</label>
+                        <input type="text" name="foundingDate" id="foundingDate" value="<?php echo htmlspecialchars($profile['founding_date'] ?? ''); ?>">
+                        
+                        <label for="founders">Founders:</label>
+                        <input type="text" name="founders" id="founders" value="<?php echo htmlspecialchars($profile['founders'] ?? ''); ?>">
+                        
+                        <label for="milestones">Key Milestones:</label>
+                        <textarea name="milestones" id="milestones"><?php echo htmlspecialchars($profile['milestones'] ?? ''); ?></textarea>
+                        
+                        <button type="submit">Save History & Background</button>
+                    </form>
                 </div>
-                
-                <!-- Other tabs content... -->
-                
-                <!-- History & Background Tab -->
-                <div id="history-tab" class="tab-content">
-                    <div class="edit-form">
-                        <h2>History & Background</h2>
-                        <form action="edit_profile.php" method="post">
-                            <input type="hidden" name="section" value="history_background">
-                            
-                            <label for="foundingDate">Founding Date:</label>
-                            <input type="text" name="foundingDate" id="foundingDate" value="<?php echo htmlspecialchars($profile['founding_date'] ?? ''); ?>">
-                            
-                            <label for="founders">Founders:</label>
-                            <input type="text" name="founders" id="founders" value="<?php echo htmlspecialchars($profile['founders'] ?? ''); ?>">
-                            
-                            <label for="milestones">Key Milestones:</label>
-                            <textarea name="milestones" id="milestones"><?php echo htmlspecialchars($profile['milestones'] ?? ''); ?></textarea>
-                            
-                            <button type="submit">Save History & Background</button>
-                        </form>
-                    </div>
+            </div>
+            
+            <!-- Mission & Vision Tab -->
+            <div id="mission-tab" class="tab-content">
+                <div class="edit-form">
+                    <h2>Mission & Vision</h2>
+                    <form action="edit_profile.php" method="post">
+                        <input type="hidden" name="section" value="mission_vision">
+                        
+                        <label for="mission">Mission Statement:</label>
+                        <textarea name="mission" id="mission"><?php echo htmlspecialchars($profile['mission'] ?? ''); ?></textarea>
+                        
+                        <label for="vision">Vision Statement:</label>
+                        <textarea name="vision" id="vision"><?php echo htmlspecialchars($profile['vision'] ?? ''); ?></textarea>
+                        
+                        <button type="submit">Save Mission & Vision</button>
+                    </form>
                 </div>
-                
-                <!-- Mission & Vision Tab -->
-                <div id="mission-tab" class="tab-content">
-                    <div class="edit-form">
-                        <h2>Mission & Vision</h2>
-                        <form action="edit_profile.php" method="post">
-                            <input type="hidden" name="section" value="mission_vision">
-                            
-                            <label for="mission">Mission Statement:</label>
-                            <textarea name="mission" id="mission"><?php echo htmlspecialchars($profile['mission'] ?? ''); ?></textarea>
-                            
-                            <label for="vision">Vision Statement:</label>
-                            <textarea name="vision" id="vision"><?php echo htmlspecialchars($profile['vision'] ?? ''); ?></textarea>
-                            
-                            <button type="submit">Save Mission & Vision</button>
-                        </form>
-                    </div>
+            </div>
+            
+            <!-- Products & Services Tab -->
+            <div id="products-tab" class="tab-content">
+                <div class="edit-form">
+                    <h2>Products & Services</h2>
+                    <form action="edit_profile.php" method="post">
+                        <input type="hidden" name="section" value="products_services">
+                        
+                        <label for="products">Products & Services:</label>
+                        <textarea name="products" id="products"><?php echo htmlspecialchars($profile['products'] ?? ''); ?></textarea>
+                        
+                        <label for="usp">Unique Selling Proposition:</label>
+                        <input type="text" name="usp" id="usp" value="<?php echo htmlspecialchars($profile['usp'] ?? ''); ?>">
+                        
+                        <button type="submit">Save Products & Services</button>
+                    </form>
                 </div>
-                
-                <!-- Products & Services Tab -->
-                <div id="products-tab" class="tab-content">
-                    <div class="edit-form">
-                        <h2>Products & Services</h2>
-                        <form action="edit_profile.php" method="post">
-                            <input type="hidden" name="section" value="products_services">
-                            
-                            <label for="products">Products & Services:</label>
-                            <textarea name="products" id="products"><?php echo htmlspecialchars($profile['products'] ?? ''); ?></textarea>
-                            
-                            <label for="usp">Unique Selling Proposition:</label>
-                            <input type="text" name="usp" id="usp" value="<?php echo htmlspecialchars($profile['usp'] ?? ''); ?>">
-                            
-                            <button type="submit">Save Products & Services</button>
-                        </form>
-                    </div>
+            </div>
+            
+            <!-- Achievements & Awards Tab -->
+            <div id="achievements-tab" class="tab-content">
+                <div class="edit-form">
+                    <h2>Achievements & Awards</h2>
+                    <form action="edit_profile.php" method="post">
+                        <input type="hidden" name="section" value="achievements_awards">
+                        
+                        <label for="awards">Awards & Recognition:</label>
+                        <textarea name="awards" id="awards"><?php echo htmlspecialchars($profile['awards'] ?? ''); ?></textarea>
+                        
+                        <label for="testimonials">Client Testimonials:</label>
+                        <textarea name="testimonials" id="testimonials"><?php echo htmlspecialchars($profile['testimonials'] ?? ''); ?></textarea>
+                        
+                        <button type="submit">Save Achievements & Awards</button>
+                    </form>
                 </div>
-                
-                <!-- Achievements & Awards Tab -->
-                <div id="achievements-tab" class="tab-content">
-                    <div class="edit-form">
-                        <h2>Achievements & Awards</h2>
-                        <form action="edit_profile.php" method="post">
-                            <input type="hidden" name="section" value="achievements_awards">
-                            
-                            <label for="awards">Awards & Recognition:</label>
-                            <textarea name="awards" id="awards"><?php echo htmlspecialchars($profile['awards'] ?? ''); ?></textarea>
-                            
-                            <label for="testimonials">Client Testimonials:</label>
-                            <textarea name="testimonials" id="testimonials"><?php echo htmlspecialchars($profile['testimonials'] ?? ''); ?></textarea>
-                            
-                            <button type="submit">Save Achievements & Awards</button>
-                        </form>
-                    </div>
-                </div>
-                
-                <!-- About Us Tab -->
-                <div id="about-tab" class="tab-content">
-                    <div class="edit-form">
-                        <h2>About Us</h2>
-                        <form action="edit_profile.php" method="post">
-                            <input type="hidden" name="section" value="about_us">
-                            
-                            <label for="about_us">About Us Content:</label>
-                            <textarea name="about_us" id="about_us"><?php echo htmlspecialchars($profile['about_us'] ?? ''); ?></textarea>
-                            
-                            <button type="submit">Save About Us</button>
-                        </form>
-                    </div>
+            </div>
+            
+            <!-- About Us Tab -->
+            <div id="about-tab" class="tab-content">
+                <div class="edit-form">
+                    <h2>About Us</h2>
+                    <form action="edit_profile.php" method="post">
+                        <input type="hidden" name="section" value="about_us">
+                        
+                        <label for="about_us">About Us Content:</label>
+                        <textarea name="about_us" id="about_us"><?php echo htmlspecialchars($profile['about_us'] ?? ''); ?></textarea>
+                        
+                        <button type="submit">Save About Us</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -760,81 +540,6 @@ $conn->close();
     
     <?php include $_SERVER['DOCUMENT_ROOT'] . '/Website/footer.php'; ?>
     
-    <script>
-        // Tab functionality
-        document.querySelectorAll('.tab-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                // Remove active class from all buttons and content
-                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-                
-                // Add active class to clicked button
-                button.classList.add('active');
-                
-                // Show corresponding content
-                const tabId = button.getAttribute('data-tab');
-                document.getElementById(tabId + '-tab').classList.add('active');
-            });
-        });
-        
-        // Save All functionality - Updated to collect all form values
-        document.getElementById('saveAllForm').addEventListener('submit', function(event) {
-            // Prevent default form submission
-            event.preventDefault();
-            
-            // Create a FormData object
-            const formData = new FormData(this);
-            
-            // Collect values from all visible form fields
-            formData.set('companyName', document.querySelector('input[name="companyName"]')?.value || '');
-            formData.set('tagline', document.querySelector('input[name="tagline"]')?.value || '');
-            formData.set('location', document.querySelector('input[name="location"]')?.value || '');
-            formData.set('contactInfo', document.querySelector('input[name="contactInfo"]')?.value || '');
-            formData.set('foundingDate', document.querySelector('input[name="foundingDate"]')?.value || '');
-            formData.set('founders', document.querySelector('input[name="founders"]')?.value || '');
-            formData.set('milestones', document.querySelector('textarea[name="milestones"]')?.value || '');
-            formData.set('mission', document.querySelector('textarea[name="mission"]')?.value || '');
-            formData.set('vision', document.querySelector('textarea[name="vision"]')?.value || '');
-            formData.set('products', document.querySelector('textarea[name="products"]')?.value || '');
-            formData.set('usp', document.querySelector('input[name="usp"]')?.value || '');
-            formData.set('awards', document.querySelector('textarea[name="awards"]')?.value || '');
-            formData.set('testimonials', document.querySelector('textarea[name="testimonials"]')?.value || '');
-            formData.set('about_us', document.querySelector('textarea[name="about_us"]')?.value || '');
-            
-            // Handle file uploads
-            const logoInput = document.querySelector('#logoUpload');
-            if (logoInput && logoInput.files.length > 0) {
-                formData.set('logoUpload', logoInput.files[0]);
-            }
-            
-            const officePhotoInput = document.querySelector('#officePhotoUpload');
-            if (officePhotoInput && officePhotoInput.files.length > 0) {
-                formData.set('officePhotoUpload', officePhotoInput.files[0]);
-            }
-            
-            const infographicInput = document.querySelector('#infographicUpload');
-            if (infographicInput && infographicInput.files.length > 0) {
-                formData.set('infographicUpload', infographicInput.files[0]);
-            }
-            
-            // Submit the form using fetch API
-            fetch('edit_profile.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('All changes saved successfully!');
-                    window.location.reload();
-                } else {
-                    alert('Error saving changes. Please try again.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while saving changes.');
-            });
-        });
-    </script>
+    <script src="/Website/assets/js/edit_profile.js"></script>
 </body>
 </html>

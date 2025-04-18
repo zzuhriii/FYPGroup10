@@ -8,56 +8,150 @@
         exit();
     }
     
-    $job_id = mysqli_real_escape_string($conn, $_GET['id']);
+    $job_id = $_GET['id'];
     $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
     $is_graduate = isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'graduate';
     
-    // Get job details
-    $job_sql = "SELECT * FROM jobs WHERE job_ID = '$job_id'";
-    $job_result = mysqli_query($conn, $job_sql);
+    // Get job details using prepared statement
+    $job_sql = "SELECT * FROM jobs WHERE job_ID = ?";
+    $stmt = $conn->prepare($job_sql);
+    $stmt->bind_param("i", $job_id);
+    $stmt->execute();
+    $job_result = $stmt->get_result();
     
-    if (mysqli_num_rows($job_result) == 0) {
+    if ($job_result->num_rows == 0) {
         header("Location: browse_jobs.php");
         exit();
     }
     
-    $job = mysqli_fetch_assoc($job_result);
+    $job = $job_result->fetch_assoc();
     
     // Check if the user has already applied for this job
     $has_applied = false;
     $application_status = '';
     
     if ($is_graduate && $user_id) {
-        $check_sql = "SELECT * FROM job_applications WHERE job_id = '$job_id' AND user_id = '$user_id'";
-        $check_result = mysqli_query($conn, $check_sql);
+        $check_sql = "SELECT * FROM job_applications WHERE job_id = ? AND user_id = ?";
+        $check_stmt = $conn->prepare($check_sql);
+        $check_stmt->bind_param("ii", $job_id, $user_id);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
         
-        if ($check_result && mysqli_num_rows($check_result) > 0) {
+        if ($check_result && $check_result->num_rows > 0) {
             $has_applied = true;
-            $application = mysqli_fetch_assoc($check_result);
+            $application = $check_result->fetch_assoc();
             $application_status = isset($application['status']) ? $application['status'] : 'pending';
-            
-            // Debug information
-            $debug_info = "Application ID: " . $application['id'] . ", Status: " . $application_status;
         }
     }
     
     // Handle application submission
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && $is_graduate) {
         if (!$has_applied) {
-            $cover_letter = mysqli_real_escape_string($conn, $_POST['cover_letter']);
+            $cover_letter = $_POST['cover_letter'];
             
-            $insert_sql = "INSERT INTO job_applications (job_id, user_id, cover_letter, application_date, status) 
-                          VALUES ('$job_id', '$user_id', '$cover_letter', NOW(), 'pending')";
+            // Check if application already exists (double check)
+            $check_duplicate = "SELECT id FROM job_applications WHERE job_id = ? AND user_id = ?";
+            $duplicate_stmt = $conn->prepare($check_duplicate);
+            $duplicate_stmt->bind_param("ii", $job_id, $user_id);
+            $duplicate_stmt->execute();
+            $duplicate_result = $duplicate_stmt->get_result();
             
-            if (mysqli_query($conn, $insert_sql)) {
-                $has_applied = true;
-                $application_status = 'pending';
-                $message = "Your application has been submitted successfully!";
-                $messageType = "success";
+            if ($duplicate_result->num_rows == 0) {
+                // Get the next queue position
+                $queue_sql = "SELECT MAX(queue_position) as max_position FROM job_applications WHERE job_id = ?";
+                $queue_stmt = $conn->prepare($queue_sql);
+                $queue_stmt->bind_param("i", $job_id);
+                $queue_stmt->execute();
+                $queue_result = $queue_stmt->get_result();
+                $queue_data = $queue_result->fetch_assoc();
+                $next_position = ($queue_data['max_position'] ? $queue_data['max_position'] + 1 : 1);
+                
+                // Insert application
+                $insert_sql = "INSERT INTO job_applications (job_id, user_id, cover_letter, application_date, status, queue_position) 
+                              VALUES (?, ?, ?, NOW(), 'pending', ?)";
+                $insert_stmt = $conn->prepare($insert_sql);
+                $insert_stmt->bind_param("iisi", $job_id, $user_id, $cover_letter, $next_position);
+                
+                if ($insert_stmt->execute()) {
+                    // Get user email for notification
+                    $user_sql = "SELECT email, name FROM users WHERE id = ?";
+                    $user_stmt = $conn->prepare($user_sql);
+                    $user_stmt->bind_param("i", $user_id);
+                    $user_stmt->execute();
+                    $user_result = $user_stmt->get_result();
+                    $user_data = $user_result->fetch_assoc();
+                    $user_email = $user_data['email'] ?? '';
+                    $user_name = $user_data['name'] ?? 'Applicant';
+                    
+                    // Send email notification if email exists
+                    if (!empty($user_email)) {
+                        require_once '../../includes/mailer.php';
+                        $subject = "Your Application Queue Number for " . $job['job_Title'];
+                        $email_message = "
+                        <html>
+                        <head>
+                            <title>Application Queue Number</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; line-height: 1.6; }
+                                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                                .header { background-color: #4285f4; color: white; padding: 20px; text-align: center; }
+                                .content { padding: 20px; background-color: #f9f9f9; }
+                                .queue-number { font-size: 36px; font-weight: bold; color: #4285f4; text-align: center; 
+                                                padding: 20px; margin: 20px 0; background-color: white; border-radius: 8px; }
+                                .footer { padding: 20px; text-align: center; font-size: 12px; color: #666; }
+                            </style>
+                        </head>
+                        <body>
+                            <div class='container'>
+                                <div class='header'>
+                                    <h1>Application Received</h1>
+                                </div>
+                                <div class='content'>
+                                    <p>Dear $user_name,</p>
+                                    <p>Thank you for applying to <strong>" . htmlspecialchars($job['job_Title']) . "</strong>. Your application has been received and is now in our queue system.</p>
+                                    <p>Your queue position is:</p>
+                                    <div class='queue-number'>#$next_position</div>
+                                    <p>You will receive another email notification when your application is being reviewed.</p>
+                                    <p>Please keep this number for your reference. You can also check your application status anytime by logging into your account.</p>
+                                </div>
+                                <div class='footer'>
+                                    <p>This is an automated message. Please do not reply to this email.</p>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                        ";
+                        
+                        sendEmail($user_email, $subject, $email_message);
+                    }
+                    
+                    // Redirect to prevent form resubmission
+                    header("Location: view_job.php?id=$job_id&applied=success");
+                    exit();
+                } else {
+                    $message = "Error submitting application: " . $conn->error;
+                    $messageType = "error";
+                }
             } else {
-                $message = "Error submitting application: " . mysqli_error($conn);
-                $messageType = "error";
+                // Application already exists, redirect to prevent resubmission
+                header("Location: view_job.php?id=$job_id&applied=duplicate");
+                exit();
             }
+        }
+    }
+    
+    // Handle URL parameters after redirect
+    if (isset($_GET['applied'])) {
+        if ($_GET['applied'] == 'success') {
+            $message = "Your application has been submitted successfully!";
+            $messageType = "success";
+            $has_applied = true;
+            $application_status = 'pending';
+        } else if ($_GET['applied'] == 'duplicate') {
+            $message = "You have already applied for this job.";
+            $messageType = "info";
+            $has_applied = true;
+            $application_status = 'pending';
         }
     }
 ?>
@@ -68,184 +162,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($job['job_Title']); ?> - Politeknik Brunei Marketing Day</title>
     <link rel="stylesheet" href="/Website/assets/css/index.css">
-    <style>
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-        
-        .job-header {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-left: 4px solid #4285f4;
-        }
-        
-        .job-title {
-            font-size: 1.8em;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        .job-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            color: #555;
-            font-size: 0.95em;
-        }
-        
-        .job-description {
-            background-color: white;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            line-height: 1.6;
-            white-space: pre-line;
-        }
-        
-        .application-form {
-            background-color: #f9f9f9;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .form-title {
-            font-size: 1.4em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #333;
-            text-align: center;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-        }
-        
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: inherit;
-            font-size: 16px;
-            height: 200px;
-            resize: vertical;
-        }
-        
-        .submit-btn {
-            background-color: #4285f4;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            transition: background-color 0.2s;
-            display: block;
-            margin: 0 auto;
-        }
-        
-        .submit-btn:hover {
-            background-color: #3367d6;
-        }
-        
-        .message {
-            padding: 15px;
-            margin-bottom: 25px;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
-        
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-        }
-        
-        .application-status {
-            text-align: center;
-            padding: 20px;
-            margin-bottom: 30px;
-            border-radius: 8px;
-            font-weight: 500;
-        }
-        
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-            border-left: 4px solid #ffc107;
-        }
-        
-        .status-accepted {
-            background-color: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
-        
-        .status-declined {
-            background-color: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-        }
-        
-        .back-link {
-            text-align: center;
-            margin-top: 30px;
-        }
-        
-        .back-link a {
-            color: #4285f4;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-block;
-            padding: 10px 20px;
-            border: 1px solid #4285f4;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        
-        .back-link a:hover {
-            background-color: #4285f4;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="/Website/assets/css/view_job.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <!-- Politeknik Logo at top left -->
+    <div style="position: absolute; top: 10px; left: 10px;">
+        <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" style="max-height: 60px;">
+    </div>
+
     <div class="container">
         <h1>Job Details</h1>
         
         <?php if (isset($message)): ?>
             <div class="message <?php echo $messageType; ?>">
-                <?php echo $message; ?>
+                <?php echo htmlspecialchars($message); ?>
             </div>
         <?php endif; ?>
         
@@ -255,6 +186,12 @@
                 <span>Category: <?php echo htmlspecialchars($job['job_Category']); ?></span>
                 <span>Vacancies: <?php echo htmlspecialchars($job['job_Vacancy']); ?></span>
                 <span>Posted: <?php echo date('M d, Y', strtotime($job['job_Offered'])); ?></span>
+                <?php if (!empty($job['salary_estimation'])): ?>
+                <span>Salary: <?php echo htmlspecialchars($job['salary_estimation']); ?></span>
+                <?php endif; ?>
+                <?php if (!empty($job['application_deadline'])): ?>
+                <span>Deadline: <?php echo date('M d, Y', strtotime($job['application_deadline'])); ?></span>
+                <?php endif; ?>
             </div>
         </div>
         
@@ -289,13 +226,14 @@
                         <label for="cover_letter">Cover Letter</label>
                         <textarea id="cover_letter" name="cover_letter" placeholder="Introduce yourself and explain why you're a good fit for this position..." required></textarea>
                     </div>
-                    <button type="submit" class="submit-btn">Submit Application</button>
+                    <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Submit Application</button>
                 </form>
             </div>
         <?php endif; ?>
         
         <div class="back-link">
             <a href="<?php echo $is_graduate ? 'my_applications.php' : 'browse_jobs.php'; ?>">
+                <i class="fas fa-<?php echo $is_graduate ? 'list-alt' : 'search'; ?>"></i> 
                 <?php echo $is_graduate ? 'View My Applications' : 'Browse More Jobs'; ?>
             </a>
         </div>

@@ -10,7 +10,7 @@
     
     $user_id = $_SESSION['user_id'];
     
-    // Debug: Check if job_applications table has a status column
+    // Check if job_applications table has a status column
     $columns_check = mysqli_query($conn, "SHOW COLUMNS FROM job_applications LIKE 'status'");
     $has_status_column = mysqli_num_rows($columns_check) > 0;
     
@@ -26,157 +26,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Applications - Politeknik Brunei Marketing Day</title>
     <link rel="stylesheet" href="/Website/assets/css/index.css">
-    <style>
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        h1, h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-        
-        .applications-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .applications-table th, .applications-table td {
-            padding: 14px 15px;
-            text-align: left;
-        }
-        
-        .applications-table td {
-            color: #000;
-        }
-        
-        .applications-table th {
-            background-color: #4285f4;
-            color: white;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85em;
-            letter-spacing: 0.5px;
-        }
-        
-        .applications-table tr {
-            border-bottom: 1px solid #eee;
-        }
-        
-        .applications-table tr:last-child {
-            border-bottom: none;
-        }
-        
-        .applications-table tr:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .status {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-            text-align: center;
-            min-width: 80px;
-        }
-        
-        .pending {
-            background-color: #FFF3CD;
-            color: #856404;
-        }
-        
-        .accepted {
-            background-color: #D4EDDA;
-            color: #155724;
-        }
-        
-        .declined {
-            background-color: #F8D7DA;
-            color: #721C24;
-        }
-        
-        .action-links a {
-            margin-right: 10px;
-            text-decoration: none;
-            color: #4285f4;
-            font-weight: 500;
-            transition: color 0.2s;
-            display: inline-block;
-            padding: 4px 8px;
-        }
-        
-        .action-links a:hover {
-            color: #3367d6;
-            text-decoration: underline;
-        }
-        
-        .no-applications {
-            text-align: center;
-            padding: 40px 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            color: #555;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-        
-        .no-applications p {
-            margin: 10px 0;
-            font-size: 1.1em;
-        }
-        
-        .back-link {
-            text-align: center;
-            margin-top: 30px;
-        }
-        
-        .back-link a {
-            color: #4285f4;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-block;
-            padding: 10px 20px;
-            border: 1px solid #4285f4;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        
-        .back-link a:hover {
-            background-color: #4285f4;
-            color: white;
-        }
-        
-        .message {
-            padding: 15px;
-            margin-bottom: 25px;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border-left: 4px solid #4285f4;
-        }
-        
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
-        
-        .info {
-            background-color: #e1f5fe;
-            color: #0c5460;
-            border-left: 4px solid #4285f4;
-        }
-    </style>
+    <link rel="stylesheet" href="/Website/assets/css/my_applications.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <!-- Politeknik Logo at top left -->
+    <div style="position: absolute; top: 10px; left: 10px;">
+        <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" style="max-height: 60px;">
+    </div>
+
     <div class="container">
         <h1>My Job Applications</h1>
         
@@ -185,35 +43,48 @@
             $table_check = mysqli_query($conn, "SHOW TABLES LIKE 'job_applications'");
             
             if (mysqli_num_rows($table_check) > 0) {
-                // Get applications for this user
-                $app_sql = "SELECT a.*, j.job_Title, j.job_Category, c.name as company_name 
-                           FROM job_applications a 
-                           JOIN jobs j ON a.job_id = j.job_ID 
-                           JOIN users c ON j.company_id = c.id
-                           WHERE a.user_id = '$user_id' 
-                           ORDER BY a.application_date DESC";
+                // Check if company_id column exists in jobs table
+                $company_id_check = mysqli_query($conn, "SHOW COLUMNS FROM jobs LIKE 'company_id'");
+                $has_company_id = mysqli_num_rows($company_id_check) > 0;
                 
-                // If company_id column doesn't exist in jobs table, use this alternative query
-                if (mysqli_query($conn, "SHOW COLUMNS FROM jobs LIKE 'company_id'")->num_rows == 0) {
+                // Prepare the SQL query based on table structure
+                if ($has_company_id) {
+                    $app_sql = "SELECT a.*, j.job_Title, j.job_Category, c.name as company_name 
+                               FROM job_applications a 
+                               JOIN jobs j ON a.job_id = j.job_ID 
+                               JOIN users c ON j.company_id = c.id
+                               WHERE a.user_id = ?
+                               ORDER BY a.application_date DESC";
+                    
+                    $stmt = $conn->prepare($app_sql);
+                    $stmt->bind_param("i", $user_id);
+                } else {
                     $app_sql = "SELECT a.*, j.job_Title, j.job_Category, 'Company' as company_name 
                                FROM job_applications a 
                                JOIN jobs j ON a.job_id = j.job_ID 
-                               WHERE a.user_id = '$user_id' 
+                               WHERE a.user_id = ?
                                ORDER BY a.application_date DESC";
+                    
+                    $stmt = $conn->prepare($app_sql);
+                    $stmt->bind_param("i", $user_id);
                 }
                 
-                $app_result = mysqli_query($conn, $app_sql);
+                $stmt->execute();
+                $app_result = $stmt->get_result();
                 
-                if ($app_result && mysqli_num_rows($app_result) > 0) {
+                if ($app_result && $app_result->num_rows > 0) {
                     // Check if there are any accepted applications
                     $has_accepted = false;
-                    $temp_result = mysqli_query($conn, $app_sql);
-                    while ($temp = mysqli_fetch_assoc($temp_result)) {
+                    $temp_result = $app_result->data_seek(0);
+                    while ($temp = $app_result->fetch_assoc()) {
                         if ($temp['status'] == 'accepted') {
                             $has_accepted = true;
                             break;
                         }
                     }
+                    
+                    // Reset result pointer
+                    $app_result->data_seek(0);
                     
                     // Show congratulations message if there are accepted applications
                     if ($has_accepted) {
@@ -235,10 +106,7 @@
                         </thead>
                         <tbody>";
                     
-                    while ($app = mysqli_fetch_assoc($app_result)) {
-                        // Debug: Print the raw status value to see what's stored in the database
-                        // echo "<!-- Debug: Status = " . $app['status'] . " -->";
-                        
+                    while ($app = $app_result->fetch_assoc()) {
                         // Make sure status has a valid value
                         if (empty($app['status'])) {
                             $app['status'] = 'pending';
@@ -248,13 +116,13 @@
                         $status_text = ucfirst($app['status']);
                         
                         echo "<tr>
-                            <td>".htmlspecialchars($app['job_Title'])."</td>
-                            <td>".htmlspecialchars($app['company_name'])."</td>
-                            <td>".htmlspecialchars($app['job_Category'])."</td>
-                            <td>".date('M d, Y', strtotime($app['application_date']))."</td>
-                            <td><span class='status ".$status_class."'>".$status_text."</span></td>
+                            <td>" . htmlspecialchars($app['job_Title']) . "</td>
+                            <td>" . htmlspecialchars($app['company_name']) . "</td>
+                            <td>" . htmlspecialchars($app['job_Category']) . "</td>
+                            <td>" . date('M d, Y', strtotime($app['application_date'])) . "</td>
+                            <td><span class='status " . $status_class . "'>" . $status_text . "</span></td>
                             <td class='action-links'>
-                                <a href='view_application_details.php?id=".$app['id']."'>View Details</a>
+                                <a href='view_application_details.php?id=" . $app['id'] . "'><i class='fas fa-eye'></i> View Details</a>
                             </td>
                         </tr>";
                     }
@@ -274,7 +142,7 @@
         ?>
         
         <div class="back-link">
-            <a href="/Website/jobs/browse_jobs.php">Browse Available Jobs</a>
+            <a href="/Website/jobs/browse_jobs.php"><i class="fas fa-search"></i> Browse Available Jobs</a>
         </div>
     </div>
 </body>

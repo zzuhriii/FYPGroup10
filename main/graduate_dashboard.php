@@ -20,7 +20,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
-
 $user_type = $user['user_type'];
 $profile_pic = !empty($user['profile_pic']) ? "/Website/user_profile/uploads/profile/" . $user['profile_pic'] : "/Website/user_profile/uploads/profile/placeholder.png";
 ?>
@@ -32,45 +31,11 @@ $profile_pic = !empty($user['profile_pic']) ? "/Website/user_profile/uploads/pro
     <title>Politeknik Dashboard</title>
     <link rel="stylesheet" href="/Website/assets/css/dashboard.css">
     <link rel="stylesheet" href="/Website/assets/css/dashboard-animations.css">
+    <link rel="stylesheet" href="/Website/assets/css/graduate-dashboard.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .email-reminder {
-            margin-top: 15px;
-            padding: 12px;
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .email-reminder i {
-            color: #ffc107;
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-        
-        .email-reminder p {
-            margin: 5px 0;
-            font-size: 14px;
-            color: #856404;
-        }
-        
-        .dashboard-button.secondary {
-            background-color: #6c757d;
-            margin-top: 8px;
-            font-size: 14px;
-            padding: 6px 12px;
-        }
-        
-        .dashboard-button.secondary:hover {
-            background-color: #5a6268;
-        }
-    </style>
 </head>
 <body>
 <header>
@@ -135,20 +100,23 @@ $profile_pic = !empty($user['profile_pic']) ? "/Website/user_profile/uploads/pro
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Profile picture click handler
-            document.getElementById('profilePic').addEventListener('click', function() {
-                var dropdownMenu = document.getElementById('dropdownMenu');
-                dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
-            });
+            const profilePic = document.getElementById('profilePic');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            
+            if (profilePic && dropdownMenu) {
+                profilePic.addEventListener('click', function() {
+                    dropdownMenu.style.display = (dropdownMenu.style.display === 'block') ? 'none' : 'block';
+                });
 
-            // Close the dropdown if the user clicks outside
-            window.onclick = function(event) {
-                if (!event.target.matches('.profile-pic')) {
-                    var dropdownMenu = document.getElementById('dropdownMenu');
-                    if (dropdownMenu.style.display === 'block') {
-                        dropdownMenu.style.display = 'none';
+                // Close the dropdown if the user clicks outside
+                window.addEventListener('click', function(event) {
+                    if (!event.target.matches('.profile-pic')) {
+                        if (dropdownMenu.style.display === 'block') {
+                            dropdownMenu.style.display = 'none';
+                        }
                     }
-                }
-            };
+                });
+            }
         });
     </script>
 </body>

@@ -1,6 +1,6 @@
 <?php
-// Include header
-// include $_SERVER['DOCUMENT_ROOT'] . '/Website/header.php';
+// Start session if not already started
+session_start();
 
 // Database connection
 $servername = "localhost";
@@ -24,20 +24,26 @@ if (!isset($_GET['company_id']) || empty($_GET['company_id'])) {
 $company_id = mysqli_real_escape_string($conn, $_GET['company_id']);
 
 // Get company information
-$company_sql = "SELECT * FROM users WHERE id = '$company_id' AND user_type = 'company'";
-$company_result = mysqli_query($conn, $company_sql);
+$company_sql = "SELECT * FROM users WHERE id = ? AND user_type = 'company'";
+$stmt = $conn->prepare($company_sql);
+$stmt->bind_param("i", $company_id);
+$stmt->execute();
+$company_result = $stmt->get_result();
 
-if (!$company_result || mysqli_num_rows($company_result) == 0) {
+if ($company_result->num_rows == 0) {
     echo "<div class='error-message'>Company not found.</div>";
     exit();
 }
 
-$company = mysqli_fetch_assoc($company_result);
+$company = $company_result->fetch_assoc();
 
 // Get company profile data
-$profile_sql = "SELECT * FROM company_profile WHERE user_id = '$company_id'";
-$profile_result = mysqli_query($conn, $profile_sql);
-$profile = mysqli_fetch_assoc($profile_result);
+$profile_sql = "SELECT * FROM company_profile WHERE user_id = ?";
+$stmt = $conn->prepare($profile_sql);
+$stmt->bind_param("i", $company_id);
+$stmt->execute();
+$profile_result = $stmt->get_result();
+$profile = $profile_result->fetch_assoc();
 
 // If no profile exists, show basic info only
 if (!$profile) {
@@ -49,6 +55,8 @@ if (!$profile) {
         'about_us' => 'No detailed information available for this company yet.'
     ];
 }
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -58,97 +66,8 @@ if (!$profile) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($profile['company_name']); ?> - Company Profile</title>
     <link rel="stylesheet" href="/Website/assets/css/index.css">
-    <style>
-        .company-profile-container {
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        
-        .company-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        
-        .company-logo {
-            width: 120px;
-            height: 120px;
-            border-radius: 8px;
-            object-fit: contain;
-            background-color: #f5f5f5;
-            margin-right: 20px;
-        }
-        
-        .company-info h1 {
-            margin: 0 0 10px 0;
-            color: #333;
-        }
-        
-        .company-tagline {
-            font-style: italic;
-            color: #666;
-            margin-bottom: 10px;
-        }
-        
-        .company-location, .company-contact {
-            color: #555;
-            margin-bottom: 5px;
-        }
-        
-        .profile-section {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .profile-section h2 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-        
-        .profile-section p {
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        .company-milestones, .company-products, .company-awards {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        
-        .company-milestones li, .company-products li, .company-awards li {
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .company-milestones li:last-child, .company-products li:last-child, .company-awards li:last-child {
-            border-bottom: none;
-        }
-        
-        .back-button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        
-        .back-button:hover {
-            background-color: #2980b9;
-        }
-        
-        .no-data {
-            color: #999;
-            font-style: italic;
-        }
-    </style>
+    <link rel="stylesheet" href="/Website/assets/css/company_profile_view.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <!-- Politeknik Logo at top left -->
@@ -173,11 +92,11 @@ if (!$profile) {
                 <?php endif; ?>
                 
                 <?php if (!empty($profile['location'])): ?>
-                    <div class="company-location">📍 <?php echo htmlspecialchars($profile['location']); ?></div>
+                    <div class="company-location"><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($profile['location']); ?></div>
                 <?php endif; ?>
                 
                 <?php if (!empty($profile['contact_info'])): ?>
-                    <div class="company-contact">📞 <?php echo htmlspecialchars($profile['contact_info']); ?></div>
+                    <div class="company-contact"><i class="fas fa-phone"></i> <?php echo htmlspecialchars($profile['contact_info']); ?></div>
                 <?php endif; ?>
             </div>
         </div>
@@ -297,7 +216,9 @@ if (!$profile) {
         </div>
         <?php endif; ?>
         
-        <a href="javascript:history.back()" class="back-button">Back to Jobs</a>
+        <a href="javascript:history.back()" class="back-button"><i class="fas fa-arrow-left"></i> Back to Jobs</a>
     </div>
+    
+    <?php include $_SERVER['DOCUMENT_ROOT'] . '/Website/footer.php'; ?>
 </body>
 </html>

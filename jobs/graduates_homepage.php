@@ -49,18 +49,25 @@
     $user_id = $_SESSION['user_id'];
     
     // Get user's programme for recommendations
-    $user_sql = "SELECT programme FROM users WHERE id = '$user_id'";
-    $user_result = mysqli_query($conn, $user_sql);
-    $user = mysqli_fetch_assoc($user_result);
+    $user_sql = "SELECT programme FROM users WHERE id = ?";
+    $stmt = $conn->prepare($user_sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
     $user_programme = $user['programme'] ?? '';
     
     // Get recommended jobs based on user's programme
     $recommended_jobs = [];
     if (!empty($user_programme)) {
-        $rec_sql = "SELECT * FROM jobs WHERE programme = '$user_programme' ORDER BY job_Offered DESC LIMIT 10";
-        $rec_result = mysqli_query($conn, $rec_sql);
-        if ($rec_result && mysqli_num_rows($rec_result) > 0) {
-            while ($job = mysqli_fetch_assoc($rec_result)) {
+        $rec_sql = "SELECT * FROM jobs WHERE programme = ? ORDER BY job_Offered DESC LIMIT 10";
+        $rec_stmt = $conn->prepare($rec_sql);
+        $rec_stmt->bind_param("s", $user_programme);
+        $rec_stmt->execute();
+        $rec_result = $rec_stmt->get_result();
+        
+        if ($rec_result && $rec_result->num_rows > 0) {
+            while ($job = $rec_result->fetch_assoc()) {
                 $recommended_jobs[] = $job;
             }
         }
@@ -75,100 +82,6 @@
     <link rel="stylesheet" href="/Website/assets/css/index.css">
     <link rel="stylesheet" href="/Website/assets/css/graduates_homepage.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        .job-company {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .view-company-profile {
-            display: inline-flex;
-            align-items: center;
-            background-color: #f0f7ff;
-            color: #1976d2;
-            padding: 6px 12px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            border: 1px solid #bbdefb;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-        
-        .view-company-profile:hover {
-            background-color: #1976d2;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-        }
-        
-        .view-company-profile i {
-            margin-right: 5px;
-            font-size: 1rem;
-        }
-        
-        .view-company-location {
-            display: inline-flex;
-            align-items: center;
-            background-color: #f0f7ff;
-            color: #1976d2;
-            padding: 6px 12px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            border: 1px solid #bbdefb;
-            margin-left: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-        
-        /* Update job-company to handle multiple buttons */
-        .job-company {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .job-company > div {
-            display: flex;
-            gap: 8px;
-            margin-top: 5px;
-        }
-        
-        /* Floating dashboard button styles */
-        .floating-dashboard-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #4285f4;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 500;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-        
-        .floating-dashboard-btn:hover {
-            background-color: #1967d2;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
-        }
-        
-        .floating-dashboard-btn i {
-            margin-right: 8px;
-            font-size: 16px;
-        }
-    </style>
 </head>
 <body>
     <!-- Politeknik Logo at top left -->
@@ -187,7 +100,7 @@
         
         <!-- Recommended Jobs Tab Content -->
         <div id="recommended-jobs" class="tab-content">
-            <h2>Jobs Recommended for Your Programme: <?php echo htmlspecialchars($user_programme); ?></h2>
+            <h2>Jobs Recommended for Your Programme: <?php echo htmlspecialchars(getProgrammeName($user_programme)); ?></h2>
             
             <?php if (empty($recommended_jobs)): ?>
                 <div class="no-jobs">
@@ -201,10 +114,14 @@
                         $company_name = "Company";
                         if (isset($job['company_id'])) {
                             $company_id = $job['company_id'];
-                            $company_sql = "SELECT name FROM users WHERE id = '$company_id' AND user_type = 'company'";
-                            $company_result = mysqli_query($conn, $company_sql);
-                            if ($company_result && mysqli_num_rows($company_result) > 0) {
-                                $company_data = mysqli_fetch_assoc($company_result);
+                            $company_sql = "SELECT name FROM users WHERE id = ? AND user_type = 'company'";
+                            $company_stmt = $conn->prepare($company_sql);
+                            $company_stmt->bind_param("i", $company_id);
+                            $company_stmt->execute();
+                            $company_result = $company_stmt->get_result();
+                            
+                            if ($company_result && $company_result->num_rows > 0) {
+                                $company_data = $company_result->fetch_assoc();
                                 $company_name = $company_data['name'];
                             }
                         }
@@ -225,12 +142,12 @@
                                 </div>
                             </div>
                             <div class="job-details">
-                                <span>Programme: <?php echo getProgrammeName($job['programme']); ?></span>
+                                <span>Programme: <?php echo htmlspecialchars(getProgrammeName($job['programme'])); ?></span>
                                 <span>Vacancies: <?php echo htmlspecialchars($job['job_Vacancy']); ?></span>
-                                <strong>Salary:</strong> &nbsp;<?php echo !empty($job['salary_estimation']) ? htmlspecialchars($job['salary_estimation']) . ' per month' : 'Not specified'; ?>
+                                <span>Salary: <?php echo !empty($job['salary_estimation']) ? htmlspecialchars($job['salary_estimation']) . ' per month' : 'Not specified'; ?></span>
                             </div>
                             <div class="job-description">
-                                <?php echo (strlen($job['job_Description']) > 200 ? 
+                                <?php echo htmlspecialchars(strlen($job['job_Description']) > 200 ? 
                                     substr($job['job_Description'], 0, 200)."..." : 
                                     $job['job_Description']); ?>
                             </div>
@@ -260,125 +177,141 @@
         
         <!-- All Jobs Tab Content -->
         <div id="all-jobs" class="tab-content active">
-         <!-- Replace your existing search form with this structure -->
+            <!-- Search form with filters -->
             <form method="GET" action="" class="search-bar">
-              <div class="search-container">
-                <input type="text" name="search" placeholder="Search for jobs..." class="search-input" value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
-                <button type="submit" class="search-btn">Search</button>
-              </div>
-              
-              <div class="filter-options">
-                <select name="programme" class="filter-select" onchange="this.form.submit()">
-                  <option value="">Filter by Programme</option>
-                  <!-- School of Business -->
-                  <optgroup label="School of Business">
-                      <option value="DAFA" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DAFA') ? 'selected' : ''; ?>>DIPLOMA IN ACCOUNTING AND FINANCE</option>
-                      <option value="DBSM" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DBSM') ? 'selected' : ''; ?>>DIPLOMA IN BUSINESS STUDIES (MANAGEMENT)</option>
-                      <option value="DBSM" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DBSM') ? 'selected' : ''; ?>>DIPLOMA IN BUSINESS STUDIES (MARKETING)</option>
-                      <option value="DHCM" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DHCM') ? 'selected' : ''; ?>>DIPLOMA IN HUMAN CAPITAL MANAGEMENT</option>
-                      <option value="DAHMO" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DAHMO') ? 'selected' : ''; ?>>DIPLOMA APPRENTICESHIP IN HOSPITALITY MANAGEMENT AND OPERATIONS</option>
-                  </optgroup>
-                  <!-- School of Information and Communication Technology -->
-                  <optgroup label="School of Information and Communication Technology">
-                      <option value="DAD" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DAD') ? 'selected' : ''; ?>>DIPLOMA IN APPLICATIONS DEVELOPMENT</option>
-                      <option value="DCN" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DCN') ? 'selected' : ''; ?>>DIPLOMA IN CLOUD AND NETWORKING</option>
-                      <option value="DDA" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DDA') ? 'selected' : ''; ?>>DIPLOMA IN DATA ANALYTICS</option>
-                      <option value="DDAM" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DDAM') ? 'selected' : ''; ?>>DIGITAL ARTS AND MEDIA</option>
-                      <option value="DWT" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DWT') ? 'selected' : ''; ?>>DIPLOMA IN WEB TECHNOLOGY</option>
-                  </optgroup>
-                  <!-- School of Health Sciences -->
-                  <optgroup label="School of Health Sciences">
-                      <option value="DHSN" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DHSN') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (NURSING)</option>
-                      <option value="DHSM" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DHSM') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (MIDWIFERY)</option>
-                      <option value="DHSP" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DHSP') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (PARAMEDIC)</option>
-                      <option value="DHSCT" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DHSCT') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (CARDIOVASCULAR TECHNOLOGY)</option>
-                      <option value="DHSPH" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DHSPH') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (PUBLIC HEALTH)</option>
-                  </optgroup>
-                  <!-- School of Architecture and Engineering -->
-                  <optgroup label="School of Architecture and Engineering">
-                      <option value="DA" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DA') ? 'selected' : ''; ?>>DIPLOMA IN ARCHITECTURE</option>
-                      <option value="DID" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DID') ? 'selected' : ''; ?>>DIPLOMA IN INTERIOR DESIGN</option>
-                      <option value="DCE" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DCE') ? 'selected' : ''; ?>>DIPLOMA IN CIVIL ENGINEERING</option>
-                      <option value="DEE" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DEE') ? 'selected' : ''; ?>>DIPLOMA IN ELECTRICAL ENGINEERING</option>
-                      <option value="DECE" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DECE') ? 'selected' : ''; ?>>DIPLOMA IN ELECTRONIC AND COMMUNICATION ENGINEERING</option>
-                      <option value="DME" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DME') ? 'selected' : ''; ?>>DIPLOMA IN MECHANICAL ENGINEERING</option>
-                      <option value="DPE" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DPE') ? 'selected' : ''; ?>>DIPLOMA IN PETROLEUM ENGINEERING</option>
-                  </optgroup>
-                </select>
+                <div class="search-container">
+                    <input type="text" name="search" placeholder="Search for jobs..." class="search-input" value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
+                    <button type="submit" class="search-btn">Search</button>
+                </div>
                 
-                <select name="sort" class="filter-select" onchange="this.form.submit()">
-                  <option value="">Sort By</option>
-                  <option value="newest" <?php echo (!isset($_GET['sort']) || $_GET['sort'] == 'newest') ? 'selected' : ''; ?>>Newest First</option>
-                  <option value="oldest" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'oldest') ? 'selected' : ''; ?>>Oldest First</option>
-                  <option value="deadline" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'deadline') ? 'selected' : ''; ?>>Deadline</option>
-                </select>
-                
-                <?php if(isset($_GET['search'])): ?>
-                  <input type="hidden" name="search" value="<?php echo htmlspecialchars($_GET['search']); ?>">
-                <?php endif; ?>
-              </div>
+                <div class="filter-options">
+                    <select name="programme" class="filter-select" onchange="this.form.submit()">
+                        <option value="">Filter by Programme</option>
+                        <!-- School of Business -->
+                        <optgroup label="School of Business">
+                            <option value="DAFA" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DAFA') ? 'selected' : ''; ?>>DIPLOMA IN ACCOUNTING AND FINANCE</option>
+                            <option value="DBSM" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DBSM') ? 'selected' : ''; ?>>DIPLOMA IN BUSINESS STUDIES (MANAGEMENT)</option>
+                            <option value="DBSMK" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DBSMK') ? 'selected' : ''; ?>>DIPLOMA IN BUSINESS STUDIES (MARKETING)</option>
+                            <option value="DHCM" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DHCM') ? 'selected' : ''; ?>>DIPLOMA IN HUMAN CAPITAL MANAGEMENT</option>
+                            <option value="DAHMO" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DAHMO') ? 'selected' : ''; ?>>DIPLOMA APPRENTICESHIP IN HOSPITALITY MANAGEMENT AND OPERATIONS</option>
+                        </optgroup>
+                        <!-- School of Information and Communication Technology -->
+                        <optgroup label="School of Information and Communication Technology">
+                            <option value="DAD" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DAD') ? 'selected' : ''; ?>>DIPLOMA IN APPLICATIONS DEVELOPMENT</option>
+                            <option value="DCN" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DCN') ? 'selected' : ''; ?>>DIPLOMA IN CLOUD AND NETWORKING</option>
+                            <option value="DDA" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DDA') ? 'selected' : ''; ?>>DIPLOMA IN DATA ANALYTICS</option>
+                            <option value="DDAM" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DDAM') ? 'selected' : ''; ?>>DIGITAL ARTS AND MEDIA</option>
+                            <option value="DWT" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DWT') ? 'selected' : ''; ?>>DIPLOMA IN WEB TECHNOLOGY</option>
+                        </optgroup>
+                        <!-- School of Health Sciences -->
+                        <optgroup label="School of Health Sciences">
+                            <option value="DHSN" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DHSN') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (NURSING)</option>
+                            <option value="DHSM" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DHSM') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (MIDWIFERY)</option>
+                            <option value="DHSP" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DHSP') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (PARAMEDIC)</option>
+                            <option value="DHSCT" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DHSCT') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (CARDIOVASCULAR TECHNOLOGY)</option>
+                            <option value="DHSPH" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DHSPH') ? 'selected' : ''; ?>>DIPLOMA IN HEALTH SCIENCE (PUBLIC HEALTH)</option>
+                        </optgroup>
+                        <!-- School of Architecture and Engineering -->
+                        <optgroup label="School of Architecture and Engineering">
+                            <option value="DA" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DA') ? 'selected' : ''; ?>>DIPLOMA IN ARCHITECTURE</option>
+                            <option value="DID" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DID') ? 'selected' : ''; ?>>DIPLOMA IN INTERIOR DESIGN</option>
+                            <option value="DCE" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DCE') ? 'selected' : ''; ?>>DIPLOMA IN CIVIL ENGINEERING</option>
+                            <option value="DEE" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DEE') ? 'selected' : ''; ?>>DIPLOMA IN ELECTRICAL ENGINEERING</option>
+                            <option value="DECE" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DECE') ? 'selected' : ''; ?>>DIPLOMA IN ELECTRONIC AND COMMUNICATION ENGINEERING</option>
+                            <option value="DME" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DME') ? 'selected' : ''; ?>>DIPLOMA IN MECHANICAL ENGINEERING</option>
+                            <option value="DPE" <?php echo (isset($_GET['programme']) && $_GET['programme'] == 'DPE') ? 'selected' : ''; ?>>DIPLOMA IN PETROLEUM ENGINEERING</option>
+                        </optgroup>
+                    </select>
+                    
+                    <select name="sort" class="filter-select" onchange="this.form.submit()">
+                        <option value="">Sort By</option>
+                        <option value="newest" <?php echo (!isset($_GET['sort']) || $_GET['sort'] == 'newest') ? 'selected' : ''; ?>>Newest First</option>
+                        <option value="oldest" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'oldest') ? 'selected' : ''; ?>>Oldest First</option>
+                        <option value="deadline" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'deadline') ? 'selected' : ''; ?>>Deadline</option>
+                    </select>
+                </div>
             </form>
             
             <?php
                 // Build the SQL query with filters
                 $sql = "SELECT * FROM jobs WHERE 1=1";
+                $params = [];
+                $types = "";
                 
                 // Add programme filter if selected
                 if (isset($_GET['programme']) && !empty($_GET['programme'])) {
-                    $programme = mysqli_real_escape_string($conn, $_GET['programme']);
-                    $sql .= " AND (programme = '$programme' OR programme = '')";
+                    $sql .= " AND (programme = ? OR programme = '')";
+                    $params[] = $_GET['programme'];
+                    $types .= "s";
                 }
                 
                 // Add search filter if provided
                 if (isset($_GET['search']) && !empty($_GET['search'])) {
-                    $search = mysqli_real_escape_string($conn, $_GET['search']);
-                    $sql .= " AND (job_Title LIKE '%$search%' OR job_Description LIKE '%$search%')";
+                    $search_term = "%" . $_GET['search'] . "%";
+                    $sql .= " AND (job_Title LIKE ? OR job_Description LIKE ?)";
+                    $params[] = $search_term;
+                    $params[] = $search_term;
+                    $types .= "ss";
                 }
                 
                 // Add sorting
                 if (isset($_GET['sort']) && $_GET['sort'] == 'oldest') {
                     $sql .= " ORDER BY job_Offered ASC";
+                } else if (isset($_GET['sort']) && $_GET['sort'] == 'deadline') {
+                    $sql .= " ORDER BY application_deadline ASC";
                 } else {
                     $sql .= " ORDER BY job_Offered DESC";
                 }
                 
-                $result = mysqli_query($conn, $sql);
+                // Prepare and execute the query
+                $stmt = $conn->prepare($sql);
+                if (!empty($params)) {
+                    $stmt->bind_param($types, ...$params);
+                }
+                $stmt->execute();
+                $result = $stmt->get_result();
                 
-                if ($result && mysqli_num_rows($result) > 0) {
+                if ($result && $result->num_rows > 0) {
                     echo '<div class="job-listings">';
-                    while ($job = mysqli_fetch_assoc($result)) {
+                    while ($job = $result->fetch_assoc()) {
                         // Get company name
                         $company_name = "Company";
                         if (isset($job['company_id'])) {
                             $company_id = $job['company_id'];
-                            $company_sql = "SELECT name FROM users WHERE id = '$company_id' AND user_type = 'company'";
-                            $company_result = mysqli_query($conn, $company_sql);
-                            if ($company_result && mysqli_num_rows($company_result) > 0) {
-                                $company_data = mysqli_fetch_assoc($company_result);
+                            $company_sql = "SELECT name FROM users WHERE id = ? AND user_type = 'company'";
+                            $company_stmt = $conn->prepare($company_sql);
+                            $company_stmt->bind_param("i", $company_id);
+                            $company_stmt->execute();
+                            $company_result = $company_stmt->get_result();
+                            
+                            if ($company_result && $company_result->num_rows > 0) {
+                                $company_data = $company_result->fetch_assoc();
                                 $company_name = $company_data['name'];
                             }
                         }
                         
                         echo "<div class='job-card'>
-                            <h2 class='job-title'>".$job['job_Title']."</h2>
+                            <h2 class='job-title'>".htmlspecialchars($job['job_Title'])."</h2>
                             <div class='job-company'>
-                                ".$company_name."
-                                <div>
-                                    <a href='/Website/company_profile/companyprofile.php?id=".$job['company_id']."' class='view-company-profile'>
-                                        <i class='fas fa-building'></i> View Company Profile
-                                    </a>
-                                    <a href='/Website/company_profile/location_map.php?company_id=".$job['company_id']."' class='view-company-location'>
-                                        <i class='fas fa-map-marker-alt'></i> View Location
-                                    </a>
+                                <div style='display: flex; flex-direction: column;'>
+                                    <span style='font-weight: bold; margin-bottom: 8px;'>".htmlspecialchars($company_name)."</span>
+                                    <div>
+                                        <a href='/Website/company_profile/companyprofile.php?id=".$job['company_id']."' class='view-company-profile'>
+                                            <i class='fas fa-building'></i> View Company Profile
+                                        </a>
+                                        <a href='/Website/company_profile/location_map.php?company_id=".$job['company_id']."' class='view-company-location'>
+                                            <i class='fas fa-map-marker-alt'></i> View Location
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                             <div class='job-details'>
-                                <span>Programme: ".getProgrammeName($job['programme'])."</span>
-                                <span>Vacancies: ".$job['job_Vacancy']."</span>
+                                <span>Programme: ".htmlspecialchars(getProgrammeName($job['programme']))."</span>
+                                <span>Vacancies: ".htmlspecialchars($job['job_Vacancy'])."</span>
                                 <span>Salary: ".(!empty($job['salary_estimation']) ? htmlspecialchars($job['salary_estimation']) : 'Not specified')."</span>
                             </div>
                             <div class='job-description'>".
-                                (strlen($job['job_Description']) > 200 ? 
+                                htmlspecialchars(strlen($job['job_Description']) > 200 ? 
                                     substr($job['job_Description'], 0, 200)."..." : 
                                     $job['job_Description'])
                             ."</div>
@@ -399,7 +332,6 @@
                                     echo date('F d, Y'); // Current date as fallback
                                 }
                                 
-                                // Add live vacancy count
                             echo "</span>";
                             
                             // Check if job_applications table exists
@@ -408,10 +340,13 @@
                                 // Count accepted applications for this job
                                 $job_id = isset($job['job_ID']) ? $job['job_ID'] : (isset($job['job_id']) ? $job['job_id'] : null);
                                 if ($job_id) {
-                                    $count_sql = "SELECT COUNT(*) as accepted_count FROM job_applications WHERE job_id = '$job_id' AND status = 'accepted'";
-                                    $count_result = mysqli_query($conn, $count_sql);
+                                    $count_sql = "SELECT COUNT(*) as accepted_count FROM job_applications WHERE job_id = ? AND status = 'accepted'";
+                                    $count_stmt = $conn->prepare($count_sql);
+                                    $count_stmt->bind_param("i", $job_id);
+                                    $count_stmt->execute();
+                                    $count_result = $count_stmt->get_result();
                                     
-                                    if ($count_result && $row = mysqli_fetch_assoc($count_result)) {
+                                    if ($count_result && $row = $count_result->fetch_assoc()) {
                                         $accepted_count = $row['accepted_count'];
                                         $remaining = max(0, intval($job['job_Vacancy']) - $accepted_count);
                                         echo "<span class='vacancy-count'>" . $remaining . " positions remaining</span>";
@@ -420,19 +355,19 @@
                             }
                             
                             echo "
-                        </div>
+                            </div>
+                        </div>";
+                    }
+                    echo "</div>";
+                } else {
+                    echo "<div class='no-jobs'>
+                        <p>No job listings are currently available.</p>
+                        <p>Please check back later for new opportunities.</p>
                     </div>";
-                }
-            } else {
-                echo "<div class='no-jobs'>
-                    <p>No job listings are currently available.</p>
-                    <p>Please check back later for new opportunities.</p>
-                </div>";
             }
         ?>
+        </div>
     </div>
-    
-  
     
     <!-- Floating Return to Dashboard Button -->
     <a href="/Website/main/graduate_dashboard.php" class="floating-dashboard-btn">

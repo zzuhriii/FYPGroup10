@@ -29,3 +29,9 @@
         }
     ?>
 </head>
+<?php
+// Include the queue tracker at the end of your header.php file
+if (isset($_SESSION['user_id']) && $_SESSION['user_type'] === 'graduate') {
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/Website/includes/queue_tracker.php';
+}
+?>

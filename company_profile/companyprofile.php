@@ -78,246 +78,9 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($company['name']); ?> - Politeknik Brunei Marketing Day</title>
     <link rel="stylesheet" href="/Website/assets/css/index.css">
+    <link rel="stylesheet" href="/Website/assets/css/company_profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .company-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .company-logo {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background-color: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 30px;
-            overflow: hidden;
-        }
-        
-        .company-logo img {
-            max-width: 100%;
-            max-height: 100%;
-        }
-        
-        .company-logo i {
-            font-size: 60px;
-            color: #aaa;
-        }
-        
-        .company-info {
-            flex: 1;
-        }
-        
-        .company-name {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        
-        .company-tagline {
-            font-size: 18px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-        
-        .company-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 15px;
-        }
-        
-        .meta-item {
-            display: flex;
-            align-items: center;
-            color: #666;
-        }
-        
-        .meta-item i {
-            margin-right: 8px;
-            color: #4285f4;
-        }
-        
-        .company-sections {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-        }
-        
-        .section {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        
-        .section-title {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #333;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        
-        .company-description {
-            line-height: 1.6;
-            color: #555;
-        }
-        
-        .map-container {
-            height: 300px;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-        
-        #map {
-            height: 100%;
-            width: 100%;
-        }
-        
-        .job-list {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-        
-        .job-card {
-            background-color: #fff;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 20px;
-            transition: transform 0.3s ease;
-        }
-        
-        .job-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .job-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .job-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            color: #666;
-        }
-        
-        .job-meta-item {
-            display: flex;
-            align-items: center;
-        }
-        
-        .job-meta-item i {
-            margin-right: 5px;
-            color: #4285f4;
-        }
-        
-        .job-description {
-            margin-bottom: 15px;
-            font-size: 14px;
-            color: #555;
-            line-height: 1.5;
-        }
-        
-        .btn {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background-color: #4285f4;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: #3367d6;
-        }
-        
-        .contact-info {
-            margin-top: 20px;
-        }
-        
-        .contact-item {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-        
-        .contact-item i {
-            margin-right: 10px;
-            color: #4285f4;
-            margin-top: 3px;
-        }
-        
-        .contact-item a {
-            color: #4285f4;
-            text-decoration: none;
-        }
-        
-        .contact-item a:hover {
-            text-decoration: underline;
-        }
-        
-        @media (max-width: 768px) {
-            .company-header {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .company-logo {
-                margin-right: 0;
-                margin-bottom: 20px;
-            }
-            
-            .company-sections {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
 <body>
     <!-- Politeknik Logo at top left -->
@@ -404,9 +167,9 @@ $conn->close();
                                     </h3>
                                     
                                     <!-- Job preview section -->
-                                    <div class="job-preview" style="margin-bottom: 15px; padding: 10px; background-color: #f9f9f9; border-radius: 5px;">
+                                    <div class="job-preview">
                                         <?php if (!empty($job['job_Title']) || !empty($job['job_title'])): ?>
-                                            <div class="preview-item" style="margin-bottom: 8px;">
+                                            <div class="preview-item">
                                                 <strong>Title:</strong> 
                                                 <span style="font-weight: 500; color: #333;">
                                                     <?php 
@@ -461,7 +224,7 @@ $conn->close();
                                             </div>
                                         <?php endif; ?>
                                         
-                                        <div class="preview-meta" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;">
+                                        <div class="preview-meta">
                                             <?php if (!empty($job['job_category'])): ?>
                                                 <div class="preview-meta-item">
                                                     <i class="fas fa-tag"></i>
@@ -489,7 +252,7 @@ $conn->close();
                                         <!-- Existing job meta items remain unchanged -->
                                     </div>
                                     
-                                    <div class="job-actions" style="display: flex; gap: 10px; margin-top: 15px;">
+                                    <div class="job-actions">
                                         <?php if (!empty($job['job_id']) || !empty($job['job_ID'])): ?>
                                             <?php 
                                             // Get the job ID regardless of case
@@ -544,7 +307,12 @@ $conn->close();
                     <div class="section">
                         <h2 class="section-title">Location</h2>
                         <div class="map-container">
-                            <div id="map"></div>
+                            <div id="map" 
+                                 data-lat="<?php echo $location['latitude']; ?>" 
+                                 data-lng="<?php echo $location['longitude']; ?>"
+                                 data-company="<?php echo htmlspecialchars($company['name']); ?>"
+                                 data-address="<?php echo htmlspecialchars($location['address']); ?>">
+                            </div>
                         </div>
                         <a href="https://www.openstreetmap.org/directions?from=&to=<?php echo $location['latitude']; ?>%2C<?php echo $location['longitude']; ?>" 
                            target="_blank" class="btn btn-primary" style="width: 100%; justify-content: center;">
@@ -558,37 +326,7 @@ $conn->close();
     
     <?php if (!empty($location)): ?>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Initialize the map
-                const map = L.map('map').setView([<?php echo $location['latitude']; ?>, <?php echo $location['longitude']; ?>], 15);
-                
-                // Add OpenStreetMap tile layer
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(map);
-                
-                // Add marker for company location
-                const marker = L.marker([<?php echo $location['latitude']; ?>, <?php echo $location['longitude']; ?>], {
-                    title: "<?php echo htmlspecialchars($company['name']); ?>"
-                }).addTo(map);
-                
-                // Create popup content
-                const popupContent = `
-                    <div style="max-width: 200px; padding: 10px;">
-                        <h3 style="margin-top: 0; color: #4285f4;"><?php echo htmlspecialchars($company['name']); ?></h3>
-                        <p style="margin-bottom: 5px;"><?php echo htmlspecialchars($location['address']); ?></p>
-                        <a href="https://www.openstreetmap.org/directions?from=&to=<?php echo $location['latitude']; ?>%2C<?php echo $location['longitude']; ?>" 
-                           target="_blank" style="color: #4285f4; text-decoration: none;">
-                           <i class="fas fa-directions"></i> Get Directions
-                        </a>
-                    </div>
-                `;
-                
-                // Add popup to marker
-                marker.bindPopup(popupContent);
-            });
-        </script>
+        <script src="/Website/assets/js/company_map.js"></script>
     <?php endif; ?>
     
     <?php include $_SERVER['DOCUMENT_ROOT'] . '/Website/footer.php'; ?>

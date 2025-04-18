@@ -338,6 +338,59 @@ h1:after {
   z-index: 100;
 }
 
+.view-company-profile {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f0f7ff;
+  color: #1976d2;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  border: 1px solid #bbdefb;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.view-company-profile:hover {
+  background-color: #1976d2;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.view-company-profile i {
+  margin-right: 5px;
+  font-size: 1rem;
+}
+
+.view-company-location {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f0f7ff;
+  color: #1976d2;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  border: 1px solid #bbdefb;
+  margin-left: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.view-company-location:hover {
+  background-color: #1976d2;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.view-company-location i {
+  margin-right: 5px;
+  font-size: 1rem;
+}
+
 .dashboard-btn {
   background-color: var(--pb-primary);
   color: #fff;

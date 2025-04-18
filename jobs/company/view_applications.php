@@ -16,18 +16,21 @@
         exit();
     }
     
-    $job_id = mysqli_real_escape_string($conn, $_GET['job_id']);
+    $job_id = $_GET['job_id'];
     
-    // Get job details
-    $job_sql = "SELECT * FROM jobs WHERE job_ID = '$job_id'";
-    $job_result = mysqli_query($conn, $job_sql);
+    // Get job details using prepared statement
+    $job_sql = "SELECT * FROM jobs WHERE job_ID = ?";
+    $stmt = $conn->prepare($job_sql);
+    $stmt->bind_param("i", $job_id);
+    $stmt->execute();
+    $job_result = $stmt->get_result();
     
-    if (mysqli_num_rows($job_result) == 0) {
+    if ($job_result->num_rows == 0) {
         header("Location: manage_jobs.php");
         exit();
     }
     
-    $job = mysqli_fetch_assoc($job_result);
+    $job = $job_result->fetch_assoc();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,156 +39,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Applications - Politeknik Brunei Marketing Day</title>
     <link rel="stylesheet" href="/Website/assets/css/index.css">
-    <style>
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        h1, h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        
-        .job-info {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-left: 4px solid #4285f4;
-        }
-        
-        .job-title {
-            font-size: 1.6em;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        .job-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            color: #555;
-            font-size: 0.95em;
-        }
-        
-        .applications-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .applications-table td {
-            padding: 14px 15px;
-            text-align: left;
-            color: #000;
-        }
-        
-        .applications-table th {
-            background-color: #4285f4;
-            color: white;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85em;
-            letter-spacing: 0.5px;
-        }
-        
-        .applications-table tr {
-            border-bottom: 1px solid #eee;
-        }
-        
-        .applications-table tr:last-child {
-            border-bottom: none;
-        }
-        
-        .applications-table tr:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .status {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-            text-align: center;
-            min-width: 80px;
-        }
-        
-        .pending {
-            background-color: #FFF3CD;
-            color: #856404;
-        }
-        
-        .accepted {
-            background-color: #D4EDDA;
-            color: #155724;
-        }
-        
-        .declined {
-            background-color: #F8D7DA;
-            color: #721C24;
-        }
-        
-        .action-links a {
-            margin-right: 10px;
-            text-decoration: none;
-            color: #4285f4;
-            font-weight: 500;
-            transition: color 0.2s;
-            display: inline-block;
-            padding: 4px 8px;
-        }
-        
-        .action-links a:hover {
-            color: #3367d6;
-            text-decoration: underline;
-        }
-        
-        .no-applications {
-            text-align: center;
-            padding: 40px 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            color: #555;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-        
-        .no-applications p {
-            margin: 10px 0;
-            font-size: 1.1em;
-        }
-        
-        .back-link {
-            text-align: center;
-            margin-top: 30px;
-        }
-        
-        .back-link a {
-            color: #4285f4;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-block;
-            padding: 10px 20px;
-            border: 1px solid #4285f4;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        
-        .back-link a:hover {
-            background-color: #4285f4;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="/Website/assets/css/view_applications.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <!-- Politeknik Logo at top left -->
@@ -197,7 +52,7 @@
         <h1>Job Applications</h1>
         
         <?php if (isset($_GET['message'])): ?>
-            <div class="message <?php echo $_GET['messageType']; ?>">
+            <div class="message <?php echo htmlspecialchars($_GET['messageType']); ?>">
                 <?php echo htmlspecialchars($_GET['message']); ?>
             </div>
         <?php endif; ?>
@@ -216,15 +71,18 @@
             $table_check = mysqli_query($conn, "SHOW TABLES LIKE 'job_applications'");
             
             if (mysqli_num_rows($table_check) > 0) {
-                // Get applications for this job
+                // Get applications for this job using prepared statement
                 $app_sql = "SELECT a.*, u.name, u.email 
                            FROM job_applications a 
                            JOIN users u ON a.user_id = u.id 
-                           WHERE a.job_id = '$job_id' 
+                           WHERE a.job_id = ? 
                            ORDER BY a.application_date DESC";
-                $app_result = mysqli_query($conn, $app_sql);
+                $app_stmt = $conn->prepare($app_sql);
+                $app_stmt->bind_param("i", $job_id);
+                $app_stmt->execute();
+                $app_result = $app_stmt->get_result();
                 
-                if ($app_result && mysqli_num_rows($app_result) > 0) {
+                if ($app_result && $app_result->num_rows > 0) {
                     echo "<table class='applications-table'>
                         <thead>
                             <tr>
@@ -237,20 +95,20 @@
                         </thead>
                         <tbody>";
                     
-                    while ($app = mysqli_fetch_assoc($app_result)) {
+                    while ($app = $app_result->fetch_assoc()) {
                         $status_class = strtolower($app['status']);
                         
                         echo "<tr>
-                            <td>".htmlspecialchars($app['name'])."</td>
-                            <td>".htmlspecialchars($app['email'])."</td>
-                            <td>".date('M d, Y', strtotime($app['application_date']))."</td>
-                            <td><span class='status ".$status_class."'>".ucfirst($app['status'])."</span></td>
+                            <td>" . htmlspecialchars($app['name']) . "</td>
+                            <td>" . htmlspecialchars($app['email']) . "</td>
+                            <td>" . date('M d, Y', strtotime($app['application_date'])) . "</td>
+                            <td><span class='status " . $status_class . "'>" . ucfirst($app['status']) . "</span></td>
                             <td class='action-links'>
-                                <a href='view_application.php?id=".$app['id']."'>View Details</a>";
+                                <a href='view_application.php?id=" . $app['id'] . "'><i class='fas fa-eye'></i> View Details</a>";
                         
                         if ($app['status'] == 'pending') {
-                            echo "<a href='respond_application.php?id=".$app['id']."&action=accept'>Accept</a>
-                                  <a href='respond_application.php?id=".$app['id']."&action=decline'>Decline</a>";
+                            echo "<a href='respond_application.php?id=" . $app['id'] . "&action=accept'><i class='fas fa-check'></i> Accept</a>
+                                  <a href='respond_application.php?id=" . $app['id'] . "&action=decline'><i class='fas fa-times'></i> Decline</a>";
                         }
                         
                         echo "</td></tr>";
@@ -270,7 +128,7 @@
         ?>
         
         <div class="back-link">
-            <a href="manage_jobs.php">Back to Manage Jobs</a>
+            <a href="manage_jobs.php"><i class="fas fa-arrow-left"></i> Back to Manage Jobs</a>
         </div>
     </div>
 </body>

@@ -206,11 +206,14 @@ $sql = "CREATE TABLE IF NOT EXISTS job_applications (
     queue_date DATETIME DEFAULT NULL,
     queue_position INT DEFAULT NULL,
     email_sent TINYINT(1) DEFAULT 0,
+    INDEX (job_id),
+    INDEX (user_id),
     FOREIGN KEY (job_id) REFERENCES jobs(job_ID) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 )";
 if ($conn->query($sql) === FALSE) {
-    die("Error creating job_applications table: " . $conn->error);
+    error_log("Error creating job_applications table: " . $conn->error);
+    // Continue execution instead of dying to allow other tables to be created
 }
 
 // Add salary_estimation column to jobs table if it doesn't exist

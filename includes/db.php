@@ -34,6 +34,7 @@ $sql = "CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     reset_token VARCHAR(255) NULL,
     reset_token_expiry DATETIME NULL,
+    email_locked TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )";
 if ($conn->query($sql) === FALSE) {
@@ -196,6 +197,10 @@ $sql = "CREATE TABLE IF NOT EXISTS job_applications (
     status enum('pending','accepted','declined') DEFAULT 'pending',
     feedback text DEFAULT NULL,
     decline_reason text DEFAULT NULL,
+    queue_number VARCHAR(50) DEFAULT NULL,
+    queue_date DATETIME DEFAULT NULL,
+    queue_position INT DEFAULT NULL,
+    email_sent TINYINT(1) DEFAULT 0,
     FOREIGN KEY (job_id) REFERENCES jobs(job_ID) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 )";
@@ -210,7 +215,23 @@ if ($conn->query($sql) === FALSE) {
     error_log("Error adding salary_estimation column: " . $conn->error);
 }
 
-
+// Company locations table for map coordinates
+$sql = "CREATE TABLE IF NOT EXISTS company_locations (
+    id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(11) NOT NULL,
+    company_name VARCHAR(255) NOT NULL,
+    address TEXT NOT NULL,
+    latitude DECIMAL(10, 8) NOT NULL,
+    longitude DECIMAL(11, 8) NOT NULL,
+    description TEXT DEFAULT NULL,
+    industry VARCHAR(100) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+if ($conn->query($sql) === FALSE) {
+    die("Error creating company_locations table: " . $conn->error);
+}
 
 
 ?>

@@ -195,7 +195,7 @@
                         <td>" . htmlspecialchars($row['job_Title']) . "</td>
                         <td>" . htmlspecialchars($category) . "</td>
                         <td>" . htmlspecialchars($row['job_Vacancy']) . "</td>
-                        <td>" . ($row['salary_estimation'] ? htmlspecialchars($row['salary_estimation']) . ' per month' : 'Not specified') . "</td>
+                        <td>".(($row['min_salary'] && $row['max_salary']) ? "BND" . number_format($row['min_salary']) . " - BND" . number_format($row['max_salary']) . " per month" : 'Not specified')."</td>
                         <td>" . $date_display . "</td>
                         <td><span class='" . $status_class . "'>" . $status_text . "</span></td>
                         <td class='action-links'>

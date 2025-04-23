@@ -287,6 +287,15 @@ if ($check_admin && $check_admin->num_rows == 0) {
         error_log("Error creating default admin user: " . $conn->error);
     }
 }
+
+// Create the new salary maximum and minimum column in the jobs table
+$sql = "ALTER TABLE jobs 
+    ADD COLUMN IF NOT EXISTS min_salary INT,
+    ADD COLUMN IF NOT EXISTS max_salary INT";
+
+if ($conn->query($sql) === FALSE) {
+    die("Error in adding min_salary & max salary column: " . $conn->error);
+}
 ?>
 
 

@@ -31,13 +31,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $application_deadline = $_POST['application_deadline'];
     $programme = $_POST['programme'];
     $job_category = $_POST['job_category'];
-    $salary_estimation = $_POST['salary_estimation'];
+    $min_salary = mysqli_real_escape_string($conn, $_POST['min_salary']);
+    $max_salary = mysqli_real_escape_string($conn, $_POST['max_salary']);
 
     // Insert job into database - using job_Location instead of job_location
-    $sql = "INSERT INTO jobs (job_Title, job_Description, job_Location, job_Vacancy, application_deadline, programme, job_Created, company_id, job_category, salary_estimation) 
-            VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?)";
+    $sql = "INSERT INTO jobs (job_Title, job_Description, job_Location, job_Vacancy, application_deadline, programme, job_Created, company_id, job_category, min_salary, max_salary) 
+            VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssssiss", $job_title, $job_description, $job_location, $job_vacancy, $application_deadline, $programme, $company_id, $job_category, $salary_estimation);
+    $stmt->bind_param("ssssssiss", $job_title, $job_description, $job_location, $job_vacancy, $application_deadline, $programme, $company_id, $job_category, $min_salary, $max_salary);
     
     if ($stmt->execute()) {
         $success_message = "Job posted successfully!";
@@ -84,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
         
-        <form method="POST" action="">
+        <form method="POST" action="" id="filterForm">
             <div class="form-group">
                 <label for="job_title">Job Title:</label>
                 <input type="text" id="job_title" name="job_title" required>
@@ -119,9 +120,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             
             <div class="form-group">
-                <label for="salary_estimation">Salary Estimation (BND):</label>
-                <input type="text" id="salary_estimation" name="salary_estimation" placeholder="e.g. 1500-2000 per month or Negotiable">
-                <small class="form-text">Provide an estimated salary range to attract qualified candidates.</small>
+                <label>Salary Range (BND):</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" name="min_salary" id="min_salary" placeholder="Min" min="0" step="100" required>
+                    <input type="number" name="max_salary" id="max_salary" placeholder="Max" min="0" step="100" required>
+                </div>
+                <small class="form-text text-muted">Enter the minimum and maximum salary estimation.</small>
             </div>
             
             <div class="form-group">
@@ -172,6 +176,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <button type="submit" class="btn-submit">Post Job</button>
         </form>
+
+        <!-- For salary min and max validation -->
+        <script>
+        document.getElementById("filterForm").addEventListener("submit", function(event) {
+            var min = parseInt(document.getElementById("min_salary").value);
+            var max = parseInt(document.getElementById("max_salary").value);
+
+            if (!isNaN(min) && !isNaN(max) && min > max) {
+                alert("Minimum salary cannot be greater than maximum salary.");
+                event.preventDefault();
+            }
+        });
+        </script>
         
         <a href="/Website/company_profile/company_dashboard.php" class="back-link">
             <i class="fas fa-arrow-left"></i> Back to Dashboard

@@ -460,7 +460,7 @@
                     <strong>Vacancies:</strong> &nbsp;<?php echo htmlspecialchars($job['job_Vacancy']); ?>
                 </div>
                 <div class="job-meta-item">
-                    <strong>Salary:</strong> &nbsp;<?php echo !empty($job['salary_estimation']) ? htmlspecialchars($job['salary_estimation']) . ' per month' : 'Not specified'; ?>
+                    <strong>Salary:</strong> &nbsp;<?php echo ($job['min_salary'] && $job['max_salary']) ? 'BND ' . number_format($job['min_salary']) . ' - BND ' . number_format($job['max_salary']) . ' per month' : 'Not specified';  ?>
                 </div>
                 <div class="job-meta-item">
                     <strong>Posted:</strong> &nbsp;<?php 

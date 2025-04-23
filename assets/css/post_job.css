@@ -1,114 +1,235 @@
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* Post Job Form Styling - Professional Edition */
+:root {
+  --primary-color: #0056b3;
+  --secondary-color: #004494;
+  --accent-color: #e7f1ff;
+  --success-color: #28a745;
+  --error-color: #dc3545;
+  --text-color: #333;
+  --light-gray: #f8f9fa;
+  --medium-gray: #e9ecef;
+  --border-color: #ddd;
 }
 
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: #f5f7fa;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header styling with improved spacing */
+.header-content {
+  text-align: center;
+  padding: 2rem 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(244,247,252,0.9) 100%);
+  border-bottom: 1px solid #eaeaea;
+  margin-top: 20px;
+}
+
+header h1 {
+  color: #000000;
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Container for form content */
+.container {
+  max-width: 900px;
+  margin: 1.5rem auto 3rem;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Form group styling with improved spacing */
 .form-group {
-    margin-bottom: 20px;
+  margin-bottom: 1.8rem;
+  position: relative;
 }
 
 label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #333;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #444;
+  font-size: 0.95rem;
 }
 
+/* Form fields with enhanced styling */
 input[type="text"],
 input[type="number"],
 input[type="date"],
 textarea,
 select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-    font-family: inherit;
+  width: 100%;
+  padding: 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 16px;
+  transition: all 0.25s ease-in-out;
+  background-color: #fcfcfc;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.15);
+  outline: none;
+  background-color: white;
 }
 
 textarea {
-    height: 200px;
-    resize: vertical;
-}
-
-.btn-submit {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;
-    transition: background-color 0.3s;
-}
-
-.btn-submit:hover {
-    background-color: #2980b9;
-}
-
-.alert {
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.alert-success {
-    background-color: #d4edda;
-    color: #155724;
-    border-left: 4px solid #28a745;
-}
-
-.alert-danger {
-    background-color: #f8d7da;
-    color: #721c24;
-    border-left: 4px solid #dc3545;
-}
-
-.back-link {
-    display: inline-block;
-    margin-top: 20px;
-    color: #3498db;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.back-link:hover {
-    text-decoration: underline;
-}
-
-header {
-    background-color: #092D74;
-    color: white;
-    padding: 20px 0;
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.header-content h1 {
-    margin: 0;
-    font-size: 28px;
+  min-height: 150px;
+  resize: vertical;
 }
 
 .form-text {
-    font-size: 12px;
-    color: #6c757d;
-    margin-top: 5px;
-    display: block;
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: #6c757d;
 }
 
-optgroup {
-    font-weight: bold;
+/* Submit button with professional styling */
+.btn-submit {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.9rem 2rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+  margin-top: 1.5rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
-footer {
-    text-align: center;
-    padding: 20px 0;
-    margin-top: 40px;
-    background-color: #f8f9fa;
-    color: #6c757d;
+.btn-submit:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Alert messaging */
+.alert {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  border-left: 4px solid transparent;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #28a745;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #dc3545;
+}
+
+.alert i {
+  margin-right: 10px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 1.8rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+/* Footer styling */
+.footer {
+  text-align: center;
+  padding: 1.5rem 0;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  color: #6c757d;
+  margin-top: 3rem;
+}
+
+/* Logo container styling */
+.logo-container {
+  transition: transform 0.3s;
+}
+
+.logo-container:hover {
+  transform: translateY(-2px);
+}
+
+.logo-container img {
+  height: 60px;
+}
+
+/* 2-column form layout */
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -15px;
+}
+
+.form-col {
+  flex: 0 0 50%;
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+
+.form-col-full {
+  flex: 0 0 100%;
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+
+/* Custom styling for select dropdowns */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-col {
+    flex: 0 0 100%;
+  }
+  
+  .container {
+    padding: 1.5rem;
+    margin-top: 90px;
+  }
+  
+  header {
+    margin-top: 70px;
+  }
 }

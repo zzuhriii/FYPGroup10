@@ -48,12 +48,13 @@ if (mysqli_num_rows($table_check) > 0) {
         mysqli_query($conn, "ALTER TABLE job_applications ADD COLUMN decline_reason TEXT");
     }
     
-    // Get all active applications for this user
+    // Get all active applications for this user for active jobs only
     $apps_sql = "SELECT ja.job_id, ja.queue_position, ja.status, j.job_Title 
                 FROM job_applications ja 
                 JOIN jobs j ON ja.job_id = j.job_ID 
                 WHERE ja.user_id = ? 
                 AND ja.status NOT IN ('declined', 'rejected')
+                AND j.is_active = 1
                 ORDER BY ja.application_date DESC";
     
     $stmt = $conn->prepare($apps_sql);
@@ -67,6 +68,14 @@ if (mysqli_num_rows($table_check) > 0) {
             $applications[] = $app;
         }
     }
+    
+    // Reset queue positions when a job is closed
+    $reset_queue_sql = "UPDATE job_applications 
+                        SET queue_position = 1 
+                        WHERE job_id IN (
+                            SELECT job_ID FROM jobs WHERE is_active = 0
+                        )";
+    mysqli_query($conn, $reset_queue_sql);
 }
 
 // Only proceed if user has applications

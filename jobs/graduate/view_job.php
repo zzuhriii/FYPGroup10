@@ -160,16 +160,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($job['job_Title']); ?> - Politeknik Brunei Marketing Day</title>
+    <title><?php echo htmlspecialchars($job['job_Title']); ?> - Politeknik Brunei</title>
     <link rel="stylesheet" href="/Website/assets/css/index.css">
     <link rel="stylesheet" href="/Website/assets/css/view_job.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <!-- Politeknik Logo at top left -->
-    <div style="position: absolute; top: 10px; left: 10px;">
-        <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" style="max-height: 60px;">
-    </div>
+    <!-- Top navigation with logo -->
+    <nav class="top-nav">
+        <a href="/Website/index.php">
+            <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" class="logo">
+        </a>
+    </nav>
 
     <div class="container">
         <h1>Job Details</h1>
@@ -180,44 +182,125 @@
             </div>
         <?php endif; ?>
         
-        <div class="job-header">
-            <div class="job-title"><?php echo htmlspecialchars($job['job_Title']); ?></div>
-            <div class="job-meta">
-                <span>Category: <?php echo htmlspecialchars($job['job_Category']); ?></span>
-                <span>Vacancies: <?php echo htmlspecialchars($job['job_Vacancy']); ?></span>
-                <span>Posted: <?php echo date('M d, Y', strtotime($job['job_Offered'])); ?></span>
-                <?php if (!empty($job['salary_estimation'])): ?>
-                <span>Salary: <?php echo htmlspecialchars($job['salary_estimation']); ?></span>
+        <!-- Job details card -->
+        <div class="job-card">
+            <!-- Job header with title and meta information -->
+            <div class="job-header">
+                <div class="job-title"><?php echo htmlspecialchars($job['job_Title']); ?></div>
+                
+                <!-- Company information -->
+                <?php
+                    // Get company information
+                    $company_name = "Company";
+                    $company_location = "";
+                    if (isset($job['company_id'])) {
+                        $company_sql = "SELECT name, address FROM users WHERE id = ? AND user_type = 'company'";
+                        $company_stmt = $conn->prepare($company_sql);
+                        $company_stmt->bind_param("i", $job['company_id']);
+                        $company_stmt->execute();
+                        $company_result = $company_stmt->get_result();
+                        if ($company_result && $company_result->num_rows > 0) {
+                            $company_data = $company_result->fetch_assoc();
+                            $company_name = $company_data['name'];
+                            $company_location = $company_data['address'];
+                        }
+                    }
+                ?>
+                <div class="job-company">
+                    <div class="company-logo">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="company-info">
+                        <div class="company-name"><?php echo htmlspecialchars($company_name); ?></div>
+                        <?php if (!empty($company_location)): ?>
+                        <div class="company-location">
+                            <i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($company_location); ?>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Key job details in badges -->
+                <div class="job-meta">
+                    <span><i class="fas fa-briefcase"></i> <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $job['job_Category']))); ?></span>
+                    <span><i class="fas fa-users"></i> <?php echo htmlspecialchars($job['job_Vacancy']); ?> <?php echo $job['job_Vacancy'] > 1 ? 'Positions' : 'Position'; ?></span>
+                    <span><i class="fas fa-calendar-alt"></i> Posted: <?php echo date('M d, Y h:i A', strtotime($job['job_Offered'])); ?></span>
+                    <?php if (!empty($job['salary_estimation'])): ?>
+                    <span><i class="fas fa-dollar-sign"></i> <?php echo htmlspecialchars($job['salary_estimation']); ?></span>
+                    <?php endif; ?>
+                    <?php if (!empty($job['application_deadline'])): ?>
+                    <span><i class="fas fa-hourglass-end"></i> Deadline: <?php echo date('M d, Y', strtotime($job['application_deadline'])); ?></span>
+                    <?php endif; ?>
+                    <?php if (!empty($job['programme'])): ?>
+                    <span><i class="fas fa-graduation-cap"></i> Programme: <?php echo htmlspecialchars($job['programme']); ?></span>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <!-- Application status display if user has applied -->
+            <?php if ($has_applied): ?>
+                <?php if ($application_status == 'accepted'): ?>
+                    <div class="application-status status-accepted">
+                        <p><strong>Congratulations!</strong> Your application for this job has been accepted.</p>
+                        <p>The company will contact you soon with further details.</p>
+                    </div>
+                <?php elseif ($application_status == 'rejected' || $application_status == 'declined'): ?>
+                    <div class="application-status status-declined">
+                        <p>We're sorry, but your application for this job has been declined.</p>
+                        <p>Don't be discouraged - keep applying to other opportunities that match your skills.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="application-status status-pending">
+                        <p>You have already applied for this job.</p>
+                        <p>Your application is currently under review. You will be notified when there is an update.</p>
+                    </div>
                 <?php endif; ?>
-                <?php if (!empty($job['application_deadline'])): ?>
-                <span>Deadline: <?php echo date('M d, Y', strtotime($job['application_deadline'])); ?></span>
+            <?php endif; ?>
+            
+            <!-- Job body with full description -->
+            <div class="job-body">
+                <div class="job-section">
+                    <h3><i class="fas fa-file-alt"></i> Job Description</h3>
+                    <div class="job-description">
+                        <?php echo nl2br(htmlspecialchars($job['job_Description'])); ?>
+                    </div>
+                </div>
+                
+                <!-- Key highlights - displayed in a row of boxes -->
+                <?php if (!empty($job['job_Location']) || !empty($job['salary_estimation']) || !empty($job['job_Vacancy'])): ?>
+                <div class="job-section">
+                    <h3><i class="fas fa-star"></i> Key Details</h3>
+                    <div class="key-highlights">
+                        <?php if (!empty($job['job_Location'])): ?>
+                        <div class="highlight-item">
+                            <div class="highlight-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <div class="highlight-title">Location</div>
+                            <div class="highlight-value"><?php echo htmlspecialchars($job['job_Location']); ?></div>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if (!empty($job['salary_estimation'])): ?>
+                        <div class="highlight-item">
+                            <div class="highlight-icon"><i class="fas fa-dollar-sign"></i></div>
+                            <div class="highlight-title">Salary</div>
+                            <div class="highlight-value"><?php echo htmlspecialchars($job['salary_estimation']); ?></div>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <div class="highlight-item">
+                            <div class="highlight-icon"><i class="fas fa-calendar-check"></i></div>
+                            <div class="highlight-title">Deadline</div>
+                            <div class="highlight-value">
+                                <?php echo !empty($job['application_deadline']) ? date('M d, Y', strtotime($job['application_deadline'])) : 'Open until filled'; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <?php endif; ?>
             </div>
         </div>
         
-        <?php if ($has_applied): ?>
-            <?php if ($application_status == 'accepted'): ?>
-                <div class="application-status status-accepted">
-                    <p><strong>Congratulations!</strong> Your application for this job has been accepted.</p>
-                    <p>The company will contact you soon with further details.</p>
-                </div>
-            <?php elseif ($application_status == 'rejected' || $application_status == 'declined'): ?>
-                <div class="application-status status-declined">
-                    <p>We're sorry, but your application for this job has been declined.</p>
-                    <p>Don't be discouraged - keep applying to other opportunities that match your skills.</p>
-                </div>
-            <?php else: ?>
-                <div class="application-status status-pending">
-                    <p>You have already applied for this job.</p>
-                    <p>Your application is currently under review. You will be notified when there is an update.</p>
-                </div>
-            <?php endif; ?>
-        <?php endif; ?>
-        
-        <div class="job-description">
-            <?php echo nl2br(htmlspecialchars($job['job_Description'])); ?>
-        </div>
-        
+        <!-- Application form for graduates who haven't applied yet -->
         <?php if ($is_graduate && !$has_applied): ?>
             <div class="application-form">
                 <div class="form-title">Apply for this Job</div>
@@ -231,12 +314,27 @@
             </div>
         <?php endif; ?>
         
+        <!-- Back link -->
         <div class="back-link">
-            <a href="<?php echo $is_graduate ? 'my_applications.php' : 'browse_jobs.php'; ?>">
+            <a href="<?php echo $is_graduate ? '../graduate/my_applications.php' : '../graduate/browse_jobs.php'; ?>">
                 <i class="fas fa-<?php echo $is_graduate ? 'list-alt' : 'search'; ?>"></i> 
                 <?php echo $is_graduate ? 'View My Applications' : 'Browse More Jobs'; ?>
             </a>
         </div>
     </div>
+    
+    <!-- Include the universal floating button -->
+    <?php include_once '../../includes/floating-button.php'; ?>
+
+    <script>
+        // Initialize any JavaScript functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-scroll to message if present
+            const message = document.querySelector('.message');
+            if (message) {
+                message.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,49 @@
+/* Universal Floating Dashboard Button */
+.floating-back-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #0056b3;
+  color: white;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  text-decoration: none;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.floating-back-btn i {
+  font-size: 24px;
+}
+
+.floating-back-btn:hover {
+  background-color: #004494;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Adding tooltip for floating button */
+.floating-back-btn::after {
+  content: "Dashboard";
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.floating-back-btn:hover::after {
+  opacity: 1;
+}

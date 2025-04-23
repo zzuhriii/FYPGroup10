@@ -90,6 +90,18 @@ if ($conn->query($sql) === FALSE) {
     die("Error creating jobs table: " . $conn->error);
 }
 
+// Check if is_active column exists before adding it
+$result = $conn->query("SHOW COLUMNS FROM jobs LIKE 'is_active'");
+if ($result && $result->num_rows == 0) {
+    $sql = "ALTER TABLE jobs ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1";
+    if ($conn->query($sql) === FALSE) {
+        die("Error adding is_active column to jobs table: ". $conn->error);
+    }
+}
+
+
+
+
 // Applications table for job applications
 $sql = "CREATE TABLE IF NOT EXISTS applications (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -206,11 +218,14 @@ $sql = "CREATE TABLE IF NOT EXISTS job_applications (
     queue_date DATETIME DEFAULT NULL,
     queue_position INT DEFAULT NULL,
     email_sent TINYINT(1) DEFAULT 0,
+    INDEX (job_id),
+    INDEX (user_id),
     FOREIGN KEY (job_id) REFERENCES jobs(job_ID) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 )";
 if ($conn->query($sql) === FALSE) {
-    die("Error creating job_applications table: " . $conn->error);
+    error_log("Error creating job_applications table: " . $conn->error);
+    // Continue execution instead of dying to allow other tables to be created
 }
 
 // Add salary_estimation column to jobs table if it doesn't exist
@@ -232,13 +247,46 @@ $sql = "CREATE TABLE IF NOT EXISTS company_locations (
     industry VARCHAR(100) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    location_name VARCHAR(255) DEFAULT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 )";
 if ($conn->query($sql) === FALSE) {
     die("Error creating company_locations table: " . $conn->error);
 }
 
+$sql = "ALTER TABLE company_locations ADD COLUMN IF NOT EXISTS location_name VARCHAR(255) DEFAULT NULL";
+if ($conn->query($sql) === FALSE) {
+    // Don't die on error, just log it
+    error_log("Error adding location_name column: " . $conn->error);
+}
 
+// Create admin_users table if it doesn't exist
+$sql = "CREATE TABLE IF NOT EXISTS admin_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)";
+if ($conn->query($sql) === FALSE) {
+    error_log("Error creating admin_users table: " . $conn->error);
+}
+
+// Check if default admin user exists
+$check_admin = $conn->query("SELECT * FROM admin_users WHERE username = 'admin'");
+if ($check_admin && $check_admin->num_rows == 0) {
+    // Create default admin user
+    $admin_username = "admin";
+    $admin_password = password_hash("admin123", PASSWORD_DEFAULT);
+    $admin_email = "admin@example.com";
+    
+    $insert_admin = "INSERT INTO admin_users (username, password, email) 
+                     VALUES ('$admin_username', '$admin_password', '$admin_email')";
+    
+    if ($conn->query($insert_admin) === FALSE) {
+        error_log("Error creating default admin user: " . $conn->error);
+    }
+}
 ?>
 
 

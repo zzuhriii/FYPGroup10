@@ -58,12 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <!-- Politeknik Logo at top left -->
-    <div style="position: absolute; top: 10px; left: 10px;">
-        <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" style="max-height: 60px;">
+    <!-- Professional logo presentation with proper spacing -->
+    <div class="logo-container" style="position: absolute; top: 15px; left: 20px; z-index: 100;">
+        <a href="/Website/index.php">
+            <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" style="height: 60px;">
+        </a>
     </div>
 
-    <header>
+    <header style="margin-top: 80px;">
         <div class="header-content">
             <h1>Post a New Job</h1>
         </div>

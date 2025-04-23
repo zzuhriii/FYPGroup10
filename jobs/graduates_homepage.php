@@ -60,7 +60,7 @@
     // Get recommended jobs based on user's programme
     $recommended_jobs = [];
     if (!empty($user_programme)) {
-        $rec_sql = "SELECT * FROM jobs WHERE programme = ? ORDER BY job_Offered DESC LIMIT 10";
+        $rec_sql = "SELECT * FROM jobs WHERE programme = ? AND is_active = 1 ORDER BY job_Offered DESC LIMIT 10";
         $rec_stmt = $conn->prepare($rec_sql);
         $rec_stmt->bind_param("s", $user_programme);
         $rec_stmt->execute();
@@ -84,9 +84,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <!-- Politeknik Logo at top left -->
-    <div style="position: fixed; top: 10px; left: 10px; z-index: 1000;">
-        <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" style="max-height: 60px;">
+    <!-- Politeknik Logo at top left with proper left alignment -->
+    <div style="position: absolute; top: 15px; left: 15px; z-index: 1000; text-align: left;">
+        <a href="/Website/index.php">
+            <img src="/Website/assets/images/pblogo.png" alt="Politeknik Brunei Logo" style="height: 60px;">
+        </a>
     </div>
 
     <div class="container">
@@ -234,7 +236,7 @@
             
             <?php
                 // Build the SQL query with filters
-                $sql = "SELECT * FROM jobs WHERE 1=1";
+                $sql = "SELECT * FROM jobs WHERE is_active = 1";
                 $params = [];
                 $types = "";
                 
@@ -324,12 +326,12 @@
                                 if (!empty($date) && $date != '0000-00-00' && $date != '0000-00-00 00:00:00') {
                                     $timestamp = strtotime($date);
                                     if ($timestamp && $timestamp > 0 && date('Y', $timestamp) > 1970) {
-                                        echo date('F d, Y', $timestamp);
+                                        echo date('F d, Y h:i A', $timestamp);
                                     } else {
-                                        echo date('F d, Y'); // Current date as fallback
+                                        echo date('F d, Y h:i A'); // Current date as fallback
                                     }
                                 } else {
-                                    echo date('F d, Y'); // Current date as fallback
+                                    echo date('F d, Y h:i A'); // Current date as fallback
                                 }
                                 
                             echo "</span>";
@@ -369,10 +371,8 @@
         </div>
     </div>
     
-    <!-- Floating Return to Dashboard Button -->
-    <a href="/Website/main/graduate_dashboard.php" class="floating-dashboard-btn">
-        <i class="fas fa-home"></i> Dashboard
-    </a>
+    <!-- Include the universal floating dashboard button -->
+    <?php include_once '../includes/floating-button.php'; ?>
     
     <script>
         // Tab functionality
@@ -390,9 +390,6 @@
                     this.classList.add('active');
                     const tabId = this.getAttribute('data-tab');
                     document.getElementById(tabId).classList.add('active');
-                    
-                    // Ensure the floating button remains visible
-                    document.querySelector('.floating-dashboard-btn').style.display = 'flex';
                 });
             });
         });

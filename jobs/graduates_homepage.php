@@ -146,7 +146,7 @@
                             <div class="job-details">
                                 <span>Programme: <?php echo htmlspecialchars(getProgrammeName($job['programme'])); ?></span>
                                 <span>Vacancies: <?php echo htmlspecialchars($job['job_Vacancy']); ?></span>
-                                <span>Salary: <?php echo !empty($job['salary_estimation']) ? htmlspecialchars($job['salary_estimation']) . ' per month' : 'Not specified'; ?></span>
+                                <span>Salary: <?php echo ($job['min_salary'] && $job['max_salary']) ? 'BND ' . number_format($job['min_salary']) . ' - BND ' . number_format($job['max_salary']) . ' per month' : 'Not specified'; ?></span>
                             </div>
                             <div class="job-description">
                                 <?php echo htmlspecialchars(strlen($job['job_Description']) > 200 ? 
@@ -231,6 +231,12 @@
                         <option value="oldest" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'oldest') ? 'selected' : ''; ?>>Oldest First</option>
                         <option value="deadline" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'deadline') ? 'selected' : ''; ?>>Deadline</option>
                     </select>
+
+                    <!-- <label for="salary_min">Minimum Salary (BND):</label> -->
+                    <input type="number" id="salary_min" placeholder="Minimum Salary (BND)" name="salary_min" step="100" value="<?php echo isset($_GET['salary_min']) ? htmlspecialchars($_GET['salary_min']) : ''; ?>">
+    
+                    <!-- <label for="salary_max">Maximum Salary (BND):</label> -->
+                    <input type="number" id="salary_max" placeholder="Minimum Salary (BND)" name="salary_max" step="100" value="<?php echo isset($_GET['salary_max']) ? htmlspecialchars($_GET['salary_max']) : ''; ?>">
                 </div>
             </form>
             
@@ -254,6 +260,18 @@
                     $params[] = $search_term;
                     $params[] = $search_term;
                     $types .= "ss";
+                }
+
+                // Add salary filter if provided
+                if (isset($_GET['salary_min']) && isset($_GET['salary_max']) && 
+                is_numeric($_GET['salary_min']) && is_numeric($_GET['salary_max'])) {
+
+                $salary_min = intval($_GET['salary_min']);
+                $salary_max = intval($_GET['salary_max']);
+
+                // Only add to SQL if min is less than or equal to max
+                if ($salary_min <= $salary_max) {
+                    $sql .= " AND (min_salary >= $salary_min AND max_salary <= $salary_max)";
                 }
                 
                 // Add sorting
@@ -310,7 +328,7 @@
                             <div class='job-details'>
                                 <span>Programme: ".htmlspecialchars(getProgrammeName($job['programme']))."</span>
                                 <span>Vacancies: ".htmlspecialchars($job['job_Vacancy'])."</span>
-                                <span>Salary: ".(!empty($job['salary_estimation']) ? htmlspecialchars($job['salary_estimation']) : 'Not specified')."</span>
+                                <span>Salary: ".(($job['min_salary'] && $job['max_salary']) ? "BND " . number_format($job['min_salary']) . " - BND " . number_format($job['max_salary']) . " per month" : "Not specified")."</span>
                             </div>
                             <div class='job-description'>".
                                 htmlspecialchars(strlen($job['job_Description']) > 200 ? 

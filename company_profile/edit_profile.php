@@ -425,10 +425,10 @@ $conn->close();
                         <input type="hidden" name="section" value="history_background">
                         
                         <label for="foundingDate">Founding Date:</label>
-                        <input type="text" name="foundingDate" id="foundingDate" value="<?php echo htmlspecialchars($profile['founding_date'] ?? ''); ?>">
+                        <input type="date" name="foundingDate" id="foundingDate" value="<?php echo htmlspecialchars($profile['founding_date'] ?? ''); ?>">
                         
                         <label for="founders">Founders:</label>
-                        <input type="text" name="founders" id="founders" value="<?php echo htmlspecialchars($profile['founders'] ?? ''); ?>">
+                        <textarea type="text" name="founders" id="founders" value="<?php echo htmlspecialchars($profile['founders'] ?? ''); ?>">
                         
                         <label for="milestones">Key Milestones:</label>
                         <textarea name="milestones" id="milestones"><?php echo htmlspecialchars($profile['milestones'] ?? ''); ?></textarea>
